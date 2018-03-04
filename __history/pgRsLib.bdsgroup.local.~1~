@@ -1,0 +1,9 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<BorlandProject>
+	<Transactions>
+    <Transaction>2016/02/24 14:02:24.454.bdsgroup,C:\Users\Administrator\Documents\Borland Studio Projects\ProjectGroup1.bdsgroup=C:\Users\Administrator\Desktop\日志模块封装\pgLogLib.bdsgroup</Transaction>
+  </Transactions>
+	<Default.Personality>
+		<Projects ActiveProject="RsLibDemo.exe"/>
+	</Default.Personality>
+</BorlandProject>

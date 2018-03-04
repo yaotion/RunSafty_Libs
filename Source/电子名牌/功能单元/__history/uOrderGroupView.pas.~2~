@@ -1,0 +1,199 @@
+unit uOrderGroupView;   //轮乘机组
+
+interface
+uses Windows,uScrollView,uTrainman,Graphics,PngImageList,
+    uSaftyEnum,uTrainmanView,uTrainmanJiaolu,SysUtils,uViewDefine;
+
+Type
+
+  /////////////////////////////////////////////////////
+  /// 类名:TOrderGroupView
+  /// 说明:轮乘信息
+  /////////////////////////////////////////////////////
+  TOrderGroupView = class(TView)
+  public
+    constructor Create();
+    destructor Destroy();override;
+  protected
+     //轮乘交路内机班信息
+    m_OrderGroup : RRsOrderGroup;
+    m_MinRestMinutes : integer;
+    {功能:设置轮乘信息}
+    procedure SetOrderGroup(AOrderGroup : RRsOrderGroup);
+  protected
+    //获取机组的颜色信息
+    function GetColor():TColor;
+    function GetFontColor: TColor;
+    function GetTMFontColor: TColor;
+    function GetTMBorderColor: TColor;
+    procedure BeforeDraw(Canvas: TCanvas);override;
+    procedure DrawContent(Canvas: TCanvas);override;
+    function DropAcceptRect(): TRect;override;
+  public
+
+    procedure LocateViews();override;
+    procedure SetOrder(nOrder: integer);
+
+    property OrderGroup : RRsOrderGroup read m_OrderGroup write SetOrderGroup;
+    property MinRestMinutes : integer read m_MinRestMinutes write m_MinRestMinutes;
+  end;
+
+implementation
+
+{ TOrderGroupView }
+
+procedure TOrderGroupView.BeforeDraw(Canvas: TCanvas);
+var
+  i: integer;
+begin
+  FColor := GetColor;
+  BorderColor := GetColor;
+
+  for I := 0 to Items.Count - 1 do
+  begin
+    Items[i].BorderColor := GetTMBorderColor;
+    Items[i].Font.Color := GetTMFontColor;
+  end;
+
+  //序号
+  Canvas.Font.Color := GetFontColor;
+  Canvas.Font.Name := '宋体';
+  Canvas.Font.Size := 10;
+  Canvas.Font.Style := [fsBold];
+end;
+
+constructor TOrderGroupView.Create();
+var
+  I: Integer;
+begin
+  inherited;
+  Width := 62;
+  Height := 368;
+  Margin.SetMargin(1,1,1,1);
+
+  FItems.BeginUpdate;
+  for I := 0 to 2 do
+  begin
+    FItems.AddView(TTrainmanView.Create);
+    FItems[i].Margin.SetMargin(1,1,1,0);
+  end;
+  FItems.EndUpdate;
+end;
+
+destructor TOrderGroupView.Destroy;
+begin
+  inherited;
+end;
+
+
+
+procedure TOrderGroupView.DrawContent(Canvas: TCanvas);
+var
+  strText : String;
+begin
+  if m_OrderGroup.nOrder = 0 then
+    strText := IntToStr(Owner.IndexOf(Self) + 1)
+  else
+    strText := IntToStr(m_OrderGroup.nOrder);
+
+  Canvas.TextOut((width - Canvas.TextWidth(strText)) div 2,6,strText);
+end;
+
+
+function TOrderGroupView.DropAcceptRect: TRect;
+begin
+  Result := inherited DropAcceptRect;
+  Result.Bottom := 27;
+end;
+
+function TOrderGroupView.GetColor(): TColor;
+begin
+  Result := CL_NP_BK_NORMAL;
+  if m_OrderGroup.Group.MinGroupState = tsPlaning then
+    Result := CL_NP_BK_PLAN;
+  if m_OrderGroup.Group.MinGroupState = tsRuning then
+    result := CL_NP_BK_RUN;
+  if vsSelected in Self.States then
+    Result := CL_NP_BK_SELECT;
+end;
+
+
+
+
+function TOrderGroupView.GetFontColor: TColor;
+begin
+  Result := NP_FONT_TITLE_NORMAL;
+  if m_OrderGroup.Group.MinGroupState = tsPlaning then
+    Result := NP_FONT_TITLE_SELECT;
+  if m_OrderGroup.Group.MinGroupState = tsRuning then
+    result := NP_FONT_TITLE_SELECT;
+
+  if vsSelected in Self.States then
+    Result := NP_FONT_TITLE_SELECT;
+end;
+
+function TOrderGroupView.GetTMBorderColor: TColor;
+begin
+  Result := CL_NP_BK_NORMAL;
+  if m_OrderGroup.Group.MinGroupState = tsPlaning then
+    Result := CL_NP_BK_PLAN;
+  if m_OrderGroup.Group.MinGroupState = tsRuning then
+    result := CL_NP_BK_RUN;
+
+  if vsSelected in Self.States then
+    Result := CL_NP_BK_SELECT;
+end;
+
+function TOrderGroupView.GetTMFontColor: TColor;
+begin
+  Result := NP_FONT_TITLE_NORMAL;
+  if m_OrderGroup.Group.MinGroupState = tsPlaning then
+    Result := CL_NP_BK_PLAN;
+  if m_OrderGroup.Group.MinGroupState = tsRuning then
+    result := CL_NP_BK_RUN;
+
+  if vsSelected in Self.States then
+    Result := CL_NP_BK_SELECT;
+end;
+
+procedure TOrderGroupView.LocateViews;
+var
+  r: TRect;
+begin
+  r := ClientRect;
+  r.Top := r.Top + 20;
+
+  ClacViewsPos(r,Items);
+  Invalidate();
+end;
+
+procedure TOrderGroupView.SetOrderGroup(AOrderGroup: RRsOrderGroup);
+var
+  I: Integer;
+begin
+  m_OrderGroup := AOrderGroup;
+
+  for I := 0 to Items.Count - 1 do
+  begin
+    with (Items[i] as TTrainmanView) do
+    begin
+      case i of
+        0: Trainman := AOrderGroup.Group.Trainman1;
+        1: Trainman := AOrderGroup.Group.Trainman2;
+        2: Trainman := AOrderGroup.Group.Trainman3;
+      end;
+
+      Font.Color := GetTMFontColor();
+    end;
+  end;
+
+end;
+
+procedure TOrderGroupView.SetOrder(nOrder: integer);
+begin
+  m_OrderGroup.nOrder := nOrder;
+end;
+
+
+end.
+

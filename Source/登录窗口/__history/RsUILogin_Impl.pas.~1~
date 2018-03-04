@@ -1,0 +1,23 @@
+unit RsUILogin_Impl;
+
+{$WARN SYMBOL_PLATFORM OFF}
+
+interface
+
+uses
+  ComObj, ActiveX, RsUILoginLib_TLB, StdVcl;
+
+type
+  TRsUILogin = class(TAutoObject, IRsUILogin)
+  protected
+
+  end;
+
+implementation
+
+uses ComServ;
+
+initialization
+  TAutoObjectFactory.Create(ComServer, TRsUILogin, Class_RsUILogin,
+    ciMultiInstance, tmApartment);
+end.

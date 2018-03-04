@@ -1,0 +1,52 @@
+program RsLibDemo;
+
+
+
+
+
+uses
+  Forms,
+  SysUtils,
+  Dialogs,
+  uFrmMain in 'uFrmMain.pas' {frmMainDemo},
+  uGlobalDM in 'uGlobalDM.pas' {GlobalDM: TDataModule},
+  EventSink in '功能单元\类库调用\EventSink.pas',
+  uTFComObject in '功能单元\类库调用\uTFComObject.pas',
+  uFrmLogDemo in '功能窗口\日志实例\uFrmLogDemo.pas' {frmLogDemo},
+  uRsLogObject in '功能窗口\日志实例\uRsLogObject.pas',
+  RsLogLib_TLB in '功能窗口\日志管理\RsLogLib_TLB.pas',
+  uFrmChild in '功能窗口\日志管理\uFrmChild.pas' {FrmChild},
+  uFrmLogViewer in '功能窗口\日志管理\uFrmLogViewer.pas' {frmLogViewer},
+  uMemoStyler in '功能窗口\日志管理\uMemoStyler.pas',
+  uFrmLogListener in '功能窗口\日志管理\uFrmLogListener.pas' {FrmLogListner},
+  RsCameraLib_TLB in '功能窗口\摄像头实例\RsCameraLib_TLB.pas',
+  uFrmCameraDemo in '功能窗口\摄像头实例\uFrmCameraDemo.pas' {frmCameraDemo},
+  uRsCameraObject in '功能窗口\摄像头实例\uRsCameraObject.pas',
+  RsFingerLib_TLB in '功能窗口\指纹仪实例\RsFingerLib_TLB.pas',
+  uFrmFingerDemo in '功能窗口\指纹仪实例\uFrmFingerDemo.pas' {frmFingerDemo},
+  uRsFingerObject in '功能窗口\指纹仪实例\uRsFingerObject.pas',
+  RsAlcoholLib_TLB in '功能窗口\测酒实例\RsAlcoholLib_TLB.pas',
+  uFrmAlcoholDemo in '功能窗口\测酒实例\uFrmAlcoholDemo.pas' {frmAlcoholDemo},
+  uRsAlcoholObject in '功能窗口\测酒实例\uRsAlcoholObject.pas',
+  uFrmAPITrainman in '功能窗口\人员库管理\uFrmAPITrainman.pas' {frmRsAPITrainman},
+  RsAPITrainmanLib_TLB in '功能窗口\人员库管理\引用\RsAPITrainmanLib_TLB.pas',
+  RsUITrainmanLib_TLB in '功能窗口\人员库管理\引用\RsUITrainmanLib_TLB.pas',
+  RsUtilsLib_TLB in '功能窗口\人员库管理\引用\RsUtilsLib_TLB.pas',
+  uFrmRsUIDemo in '功能窗口\运安类库示例\uFrmRsUIDemo.pas' {frmRsUIDemo},
+  RsBJTrainPlanLib_TLB in '功能窗口\运安类库示例\引用\RsBJTrainPlanLib_TLB.pas',
+  RsGlobal_TLB in '功能窗口\运安类库示例\引用\RsGlobal_TLB.pas',
+  RsLeaveLib_TLB in '功能窗口\运安类库示例\引用\RsLeaveLib_TLB.pas',
+  RsNameplateLib_TLB in '功能窗口\运安类库示例\引用\RsNameplateLib_TLB.pas',
+  RsUILoginLib_TLB in '功能窗口\登录窗口\RsUILoginLib_TLB.pas',
+  RsUILoginDemo in '功能窗口\登录窗口\RsUILoginDemo.pas' {frmUILoginDemo};
+
+{$R *.res}
+
+begin
+  ReportMemoryLeaksOnShutdown := DebugHook <> 0;
+  Application.Initialize;
+  Application.CreateForm(TGlobalDM, GlobalDM);
+  Application.CreateForm(TfrmMainDemo, frmMainDemo);
+  Application.CreateForm(TfrmUILoginDemo, frmUILoginDemo);
+  Application.Run;
+end.

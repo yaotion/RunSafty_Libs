@@ -1,0 +1,7 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<BorlandProject>
+	<Transactions>
+    <Transaction>2016-11-15 14:46:53.503.bdsproj,D:\用户目录\Documents\Borland Studio Projects\Project1.bdsproj=D:\工作\机务运用安全管理系统\02_开发\01_源代码\基线源码\客户端通用动态库\Source\交付揭示\RsPubJs.bdsproj</Transaction>
+    <Transaction>2016-11-15 14:49:02.900.pas,D:\工作\机务运用安全管理系统\02_开发\01_源代码\基线源码\客户端通用动态库\Source\交付揭示\Unit1.pas=D:\工作\机务运用安全管理系统\02_开发\01_源代码\基线源码\客户端通用动态库\Source\交付揭示\uPubJsImp.pas</Transaction>
+  </Transactions>
+</BorlandProject>

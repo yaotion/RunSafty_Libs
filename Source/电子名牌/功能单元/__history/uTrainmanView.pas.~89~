@@ -1,0 +1,266 @@
+unit uTrainmanView;  //人员
+
+interface
+uses Windows,uTrainman,Graphics,PngImageList,PngFunctions,
+    uSaftyEnum,uViewDefine,uScrollView;
+
+Type
+  /////////////////////////////////////////////////////
+  /// 类名:TTrainmanView
+  /// 说明:乘务员信息视图
+  /////////////////////////////////////////////////////
+  TTrainmanView = class(TView)
+  public
+    constructor Create();
+  protected
+    m_FontColor: TColor;
+    m_bShowOrder : boolean;
+    m_nOrder : integer;
+    m_nOrderHeight : integer;
+    //最小寓休时长卡控
+    m_nMinRestMinutes : integer;
+    //是否请假到期警告
+    m_bLeaveAlart : boolean;
+    {功能:绘制乘务员信息}
+    procedure DrawTrainman(viewBitmap:TBitmap);
+    {功能:绘制工号}
+    procedure DrawNumber(ViewCanvas:TCanvas);
+    {功能:绘制职务}
+    procedure DrawDuty(ViewCanvas:TCanvas);
+    {功能:绘制姓名}
+    procedure DrawName(ViewCanvas:TCanvas);
+    {功能:绘制其他信息}
+    procedure DrawOther(ViewCanvas:TCanvas);
+    
+    procedure DrawContent(Canvas: TCanvas);override;
+  protected
+    {乘务员信息}
+    m_Trainman : RRsTrainman;
+  private
+    {功能:设置乘务员信息}
+    procedure SetTrainman(Trainman : RRsTrainman);
+  public
+    property Trainman : RRsTrainman read m_Trainman write SetTrainman;
+    property ShowOrder : boolean read m_bShowOrder write m_bShowOrder;
+    property Order : integer read m_nOrder write m_nOrder;
+    //最小寓休卡控，如果不需要卡控则为0，否则为卡控
+    property MinRestMinutes : integer read m_nMinRestMinutes write m_nMinRestMinutes;
+    //
+    property LeaveAlart : boolean read m_bLeaveAlart write m_bLeaveAlart;
+  end;
+
+
+implementation
+uses
+  SysUtils,DateUtils,uOrderGroupView,uViewGroup;
+
+constructor TTrainmanView.Create();
+begin
+  inherited;
+  FWidth := 60;
+  FHeight := 114;
+  m_nOrderHeight := 10;
+  Color := CL_NP_BK_CONTENT;
+  m_bLeaveAlart := false;
+end;
+
+procedure TTrainmanView.DrawContent(Canvas: TCanvas);
+begin
+  FBorderColor := $002D2B28;
+  
+  Canvas.Font.Name := '宋体';
+  if vsSelected in Self.States then
+  begin
+    m_FontColor := CL_NP_BK_SELECT;
+  end
+  else
+    m_FontColor := Font.Color;
+
+
+
+
+  DrawNumber(Canvas);
+  if m_Trainman.strTrainmanNumber = '' then Exit;
+  DrawDuty(Canvas);
+
+  DrawName(Canvas);
+
+  DrawOther(Canvas);
+
+
+end;
+
+procedure TTrainmanView.DrawDuty(ViewCanvas: TCanvas);
+{功能:绘制职务}
+var
+  rtDuty : TRect;
+begin
+  rtDuty.Left := 10;
+  rtDuty.Top := 16;
+  rtDuty.Right := 50;
+  rtDuty.Bottom := 20;
+  if m_bShowOrder then
+  begin
+    rtDuty.Top := rtDuty.Top + m_nOrderHeight;
+    rtDuty.Bottom := rtDuty.Bottom + m_nOrderHeight;
+  end;
+  ViewCanvas.Pen.Color := m_FontColor;
+  ViewCanvas.Brush.Color := m_FontColor;
+  case m_Trainman.nPostID of
+    ptNone: ;
+    ptTrainman:
+      begin
+        //背景颜色,用来绘制司机职务
+        ViewCanvas.FillRect(rtDuty);
+      end;
+    ptSubTrainman:
+      begin
+        ViewCanvas.MoveTo(rtDuty.Left,rtDuty.Top);
+        ViewCanvas.LineTo(rtDuty.Right,rtDuty.Top);
+        ViewCanvas.MoveTo(rtDuty.Left,rtDuty.Bottom);
+        ViewCanvas.LineTo(rtDuty.Right,rtDuty.Bottom);
+      end;
+    ptLearning:
+      begin
+        //画笔颜色,用来绘制副司机和学员
+        ViewCanvas.Brush.Style := bsClear;
+        ViewCanvas.Brush.Color := m_FontColor;
+        ViewCanvas.Pen.Width := 1;
+        ViewCanvas.Pen.Style := psDot;
+        ViewCanvas.MoveTo(rtDuty.Left,rtDuty.Top);
+        ViewCanvas.LineTo(rtDuty.Right,rtDuty.Top);
+        ViewCanvas.MoveTo(rtDuty.Left,rtDuty.Bottom);
+        ViewCanvas.LineTo(rtDuty.Right,rtDuty.Bottom);
+      end;
+  end;
+
+end;
+
+procedure TTrainmanView.DrawName(ViewCanvas: TCanvas);
+{功能:绘制姓名}
+var
+  X,Y : Integer;
+  i : Integer;
+  strText : WideString;
+begin
+  if m_Trainman.strTrainmanName = '' then Exit;
+  ViewCanvas.Font.Size := 11;
+  ViewCanvas.Font.Style := [fsBold];
+  ViewCanvas.Brush.Style := bsClear;
+
+  if Parent is TOrderGroupView then
+  begin
+    if ((Parent as TOrderGroupView).OrderGroup.Group.GroupState = tsNormal) then
+      if (MinRestMinutes > 0) then
+      begin
+        if (IncMinute(m_Trainman.dtLastEndworkTime,MinRestMinutes) <= now) then
+        begin
+          ViewCanvas.Font.Color :=  Rgb(255,128,0);
+        end;
+      end;
+  end;
+  if (Parent is TViewGroup)  then
+  begin
+    if (MinRestMinutes > 0) then
+    begin
+      if (IncMinute(m_Trainman.dtLastEndworkTime,MinRestMinutes) <= now) then
+      begin
+        ViewCanvas.Font.Color :=  Rgb(255,128,0);
+      end;
+    end;
+  end;
+  if m_bLeaveAlart  then
+  begin
+    ViewCanvas.Font.Color := Rgb(255,0,255);
+  end;
+  strText := m_Trainman.strTrainmanName;
+  //2个字的名字增加空格，变为三个字的名字
+  if length(strText) = 2 then
+    strText := strText[1] + ' ' + strText[2];
+  X := (Width - ViewCanvas.TextWidth(strText[1])) div 2;
+  Y := 32;
+  for I := 0 to LengTh(strText) - 1 do
+  begin
+    ViewCanvas.TextOut(X,Y,strText[i+1]);
+    Y := Y + ViewCanvas.TextHeight(strText[i+1])+4;//间隔4个像素
+  end;
+end;
+
+procedure TTrainmanView.DrawNumber(ViewCanvas: TCanvas);
+{功能:绘制工号}
+var
+  X : Integer;
+  strText : String;
+  nTextWidth : Integer;
+  h : integer;
+  r : TRect;
+begin
+  ViewCanvas.Font.Color := m_FontColor;
+  ViewCanvas.Font.Size := 9;
+  ViewCanvas.Font.Style := [];
+  h := 4;
+  if (m_bShowOrder) then
+  begin
+    strText := IntToStr(m_nOrder);
+    nTextWidth := ViewCanvas.TextWidth(strText);
+    X := (Width - nTextWidth) div 2;
+    ViewCanvas.Brush.Color := CL_NP_BK_NORMAL;
+    r.Left := 0;
+    r.Top := 0;
+    r.Right := width;
+    r.Bottom := 15;
+    viewcanvas.FillRect(r);
+    ViewCanvas.Font.Style := [fsBold];
+    ViewCanvas.Brush.Style := bsClear;
+    ViewCanvas.TextOut(X,h,strText);
+    ViewCanvas.Font.Style := [];
+    h := h + m_nOrderHeight;
+  end;
+
+  strText := m_Trainman.strTrainmanNumber;
+  nTextWidth := ViewCanvas.TextWidth(strText);
+  X := (Width - nTextWidth) div 2;
+  ViewCanvas.TextOut(X,h,strText);
+end;
+
+procedure TTrainmanView.DrawOther(ViewCanvas: TCanvas);
+{功能:绘制其他信息}
+var
+  strText : String;
+begin
+  strText := '';
+
+  ViewCanvas.Brush.Style := bsClear;
+  ViewCanvas.Font.Color := clRed;
+  ViewCanvas.Font.Size := 11;
+  ViewCanvas.Font.Style := [fsBold];
+ 
+  if m_Trainman.bIsKey = 1 then
+    ViewCanvas.TextOut(5,94,'关');
+end;
+
+procedure TTrainmanView.DrawTrainman(viewBitmap: TBitmap);
+{功能:绘制乘务员信息}
+begin
+  viewBitmap.Canvas.Font.Name := '宋体';
+  // 绘制工号
+  DrawNumber(viewBitmap.Canvas);
+  if m_Trainman.strTrainmanNumber = '' then Exit;
+  
+  // 绘制工号
+  DrawNumber(viewBitmap.Canvas);
+  //绘制职务
+  DrawDuty(viewBitmap.Canvas);
+  //绘制姓名
+  DrawName(viewBitmap.Canvas);
+  //绘制其他信息
+  DrawOther(viewBitmap.Canvas);
+end;
+
+
+procedure TTrainmanView.SetTrainman(Trainman: RRsTrainman);
+begin
+  m_Trainman := Trainman;
+end;
+
+end.

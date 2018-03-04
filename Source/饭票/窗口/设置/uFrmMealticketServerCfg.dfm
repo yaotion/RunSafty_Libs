@@ -1,0 +1,73 @@
+object FrmMealTicketServerCfg: TFrmMealTicketServerCfg
+  Left = 0
+  Top = 0
+  BorderStyle = bsDialog
+  Caption = #35774#32622
+  ClientHeight = 97
+  ClientWidth = 285
+  Color = clBtnFace
+  Font.Charset = DEFAULT_CHARSET
+  Font.Color = clWindowText
+  Font.Height = -11
+  Font.Name = 'Tahoma'
+  Font.Style = []
+  OldCreateOrder = False
+  Position = poDesktopCenter
+  OnShow = FormShow
+  PixelsPerInch = 96
+  TextHeight = 13
+  object Bevel1: TBevel
+    Left = 8
+    Top = 54
+    Width = 267
+    Height = 2
+  end
+  object btnOk: TButton
+    Left = 111
+    Top = 61
+    Width = 75
+    Height = 25
+    Caption = #30830#23450
+    TabOrder = 0
+    OnClick = btnOkClick
+  end
+  object btnCancel: TButton
+    Left = 192
+    Top = 61
+    Width = 75
+    Height = 25
+    Caption = #21462#28040
+    TabOrder = 1
+    OnClick = btnCancelClick
+  end
+  object RzCheckBox1: TRzCheckBox
+    Left = 24
+    Top = 8
+    Width = 115
+    Height = 17
+    Caption = #25163#24037#21457#25918#39277#31080
+    FillColor = clWhite
+    FocusColor = clWhite
+    FrameColor = 7960953
+    HotTrack = True
+    HotTrackColor = clGradientActiveCaption
+    HotTrackStyle = htsFrame
+    State = cbUnchecked
+    TabOrder = 2
+  end
+  object RzCheckBox2: TRzCheckBox
+    Left = 24
+    Top = 31
+    Width = 115
+    Height = 17
+    Caption = #21551#29992#39277#31080#21151#33021
+    FillColor = clWhite
+    FocusColor = clWhite
+    FrameColor = 7960953
+    HotTrack = True
+    HotTrackColor = clGradientActiveCaption
+    HotTrackStyle = htsFrame
+    State = cbUnchecked
+    TabOrder = 3
+  end
+end

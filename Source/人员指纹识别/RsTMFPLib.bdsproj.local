@@ -1,0 +1,15 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<BorlandProject>
+	<Transactions>
+    <Transaction>2016-11-18 09:35:49.019.bdsproj,C:\Users\Administrator\Documents\Borland Studio Projects\Project1.bdsproj=E:\姚新\畅想\代码\项目\机务运用安全管理系统\02_开发\01_源代码\基线源码\客户端通用动态库\Source\人员指纹识别\RsTrainmanFPUtils.bdsproj</Transaction>
+    <Transaction>2016-11-18 09:36:43.020.bdsproj,E:\姚新\畅想\代码\项目\机务运用安全管理系统\02_开发\01_源代码\基线源码\客户端通用动态库\Source\人员指纹识别\RsTrainmanFPUtils.bdsproj=E:\姚新\畅想\代码\项目\机务运用安全管理系统\02_开发\01_源代码\基线源码\客户端通用动态库\Source\人员指纹识别\RsTMFPLib.bdsproj</Transaction>
+    <Transaction>2016-11-18 09:37:17.430.pas,E:\姚新\畅想\代码\项目\机务运用安全管理系统\02_开发\01_源代码\基线源码\客户端通用动态库\Source\人员指纹识别\Unit1.pas=E:\姚新\畅想\代码\项目\机务运用安全管理系统\02_开发\01_源代码\基线源码\客户端通用动态库\Source\人员指纹识别\RsTMFP_Impl.pas</Transaction>
+    <Transaction>2016-11-18 09:46:25.899.pas,E:\姚新\畅想\代码\项目\机务运用安全管理系统\02_开发\01_源代码\基线源码\客户端通用动态库\Source\人员指纹识别\RsTMFP_Impl.pas=</Transaction>
+    <Transaction>2016-11-18 09:46:51.614.pas,E:\姚新\畅想\代码\项目\机务运用安全管理系统\02_开发\01_源代码\基线源码\客户端通用动态库\Source\人员指纹识别\Unit1.pas=E:\姚新\畅想\代码\项目\机务运用安全管理系统\02_开发\01_源代码\基线源码\客户端通用动态库\Source\人员指纹识别\RsTMFP_Impl.pas</Transaction>
+    <Transaction>2016-11-18 13:29:13.862.pas,E:\姚新\畅想\代码\项目\机务运用安全管理系统\02_开发\01_源代码\基线源码\客户端通用动态库\Source\人员指纹识别\功能窗口\ufrmReadFingerprintTemplates.pas=E:\姚新\畅想\代码\项目\机务运用安全管理系统\02_开发\01_源代码\基线源码\客户端通用动态库\Source\人员指纹识别\功能窗口\uFrmFingerLoadProgress.pas</Transaction>
+    <Transaction>2016-11-18 13:29:13.862.dfm,E:\姚新\畅想\代码\项目\机务运用安全管理系统\02_开发\01_源代码\基线源码\客户端通用动态库\Source\人员指纹识别\功能窗口\ufrmReadFingerprintTemplates.dfm=E:\姚新\畅想\代码\项目\机务运用安全管理系统\02_开发\01_源代码\基线源码\客户端通用动态库\Source\人员指纹识别\功能窗口\uFrmFingerLoadProgress.dfm</Transaction>
+    <Transaction>2016-11-19 10:25:09.265.pas,D:\工作\机务运用安全管理系统\02_开发\01_源代码\基线源码\接口翻译\客户端\Source\功能窗口\通用功能\文本输入\ufrmTextInput.pas=</Transaction>
+    <Transaction>2016-11-19 10:25:09.266.dfm,D:\工作\机务运用安全管理系统\02_开发\01_源代码\基线源码\接口翻译\客户端\Source\功能窗口\通用功能\文本输入\ufrmTextInput.dfm=</Transaction>
+    <Transaction>2016-11-19 11:32:52.505.pas,D:\工作\机务运用安全管理系统\02_开发\01_源代码\基线源码\客户端通用动态库\Source\人员指纹识别\引用\RsGlobal_TLB.pas=</Transaction>
+  </Transactions>
+</BorlandProject>

@@ -1,0 +1,31 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<BorlandProject>
+	<PersonalityInfo>
+		<Option>
+			<Option Name="Personality">Default.Personality</Option>
+			<Option Name="ProjectType"></Option>
+			<Option Name="Version">1.0</Option>
+			<Option Name="GUID">{D25C43EC-8851-4D44-B9CB-87F86B9FF776}</Option>
+		</Option>
+	</PersonalityInfo>
+	<Default.Personality>  <Projects>
+      <Projects Name="RsLibDemo.exe">类库调用Demo\RsLibDemo.bdsproj</Projects>
+      <Projects Name="RsLogLib.dll">日志模块\RsLogLib.bdsproj</Projects>
+      <Projects Name="RsAlcoholLib.dll">测酒COM模块\RsAlcoholLib.bdsproj</Projects>
+      <Projects Name="RsCameraLib.dll">摄像头Com模块\RsCameraLib.bdsproj</Projects>
+      <Projects Name="RsFingerLib.dll">指纹模块\RsFingerLib.bdsproj</Projects>
+      <Projects Name="SQLConfigPackage.bpl">..\..\..\..\..\..\..\Share\Delphi\公司组件\数据库连接\Source\SQLConfigPackage.bdsproj</Projects>
+      <Projects Name="RsUtilsLib.dll">运安类库\通用\RsUtilsLib.bdsproj</Projects>
+      <Projects Name="RsUITrainmanLib.dll">运安界面类库\人员模块\RsUITrainmanLib.bdsproj</Projects>
+      <Projects Name="RsAPITrainmanLib.dll">运安类库\人员API\RsAPITrainmanLib.bdsproj</Projects>
+      <Projects Name="RsUILoginLib.dll">登录窗口\RsUILoginLib.bdsproj</Projects>
+      <Projects Name="RsAPIBaseLib.dll">运安类库\基础信息API\RsAPIBaseLib.bdsproj</Projects>
+      <Projects Name="RsNameplateLib.dll">电子名牌\RsNameplateLib.bdsproj</Projects>
+      <Projects Name="TicketTest.exe">饭票\Test\TicketTest.bdsproj</Projects>
+      <Projects Name="RsDialogs.dll">dialogs\RsDialogs.bdsproj</Projects>
+      <Projects Name="RsGlobal.dll">global\RsGlobal.bdsproj</Projects>
+      <Projects Name="Targets">RsLibDemo.exe RsLogLib.dll RsAlcoholLib.dll RsCameraLib.dll RsFingerLib.dll SQLConfigPackage.bpl RsUtilsLib.dll RsUITrainmanLib.dll RsAPITrainmanLib.dll RsUILoginLib.dll RsAPIBaseLib.dll RsNameplateLib.dll TicketTest.exe RsDialogs.dll RsGlobal.dll</Projects>
+    </Projects>
+    <Dependencies/>
+  </Default.Personality>
+</BorlandProject>

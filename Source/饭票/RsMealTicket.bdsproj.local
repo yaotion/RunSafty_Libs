@@ -1,0 +1,9 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<BorlandProject>
+	<Transactions>
+    <Transaction>2016-11-14 10:32:34.980.bdsproj,D:\用户目录\Documents\Borland Studio Projects\Project1.bdsproj=D:\工作\机务运用安全管理系统\02_开发\01_源代码\基线源码\客户端通用动态库\Source\饭票\RsMealTicket.bdsproj</Transaction>
+    <Transaction>2016-11-14 10:33:01.519.pas,D:\工作\机务运用安全管理系统\02_开发\01_源代码\基线源码\客户端通用动态库\Source\饭票\Unit1.pas=D:\工作\机务运用安全管理系统\02_开发\01_源代码\基线源码\客户端通用动态库\Source\饭票\uMealTicketImp.pas</Transaction>
+    <Transaction>2016-11-14 10:40:15.960.pas,D:\工作\机务运用安全管理系统\02_开发\01_源代码\基线源码\客户端通用动态库\Source\饭票\Unit1.pas=D:\工作\机务运用安全管理系统\02_开发\01_源代码\基线源码\客户端通用动态库\Source\饭票\uGlobal.pas</Transaction>
+    <Transaction>2016-11-14 11:09:10.754.pas,D:\工作\机务运用安全管理系统\02_开发\01_源代码\基线源码\客户端通用动态库\Source\dialogs\utilsLib.pas=D:\工作\机务运用安全管理系统\02_开发\01_源代码\基线源码\客户端通用动态库\Source\dialogs\uDialogsLib.pas</Transaction>
+  </Transactions>
+</BorlandProject>

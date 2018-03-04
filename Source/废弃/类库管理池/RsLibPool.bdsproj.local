@@ -1,0 +1,9 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<BorlandProject>
+	<Transactions>
+    <Transaction>2016/03/08 09:29:35.721.bdsproj,C:\Users\Administrator\Documents\Borland Studio Projects\Project1.bdsproj=C:\Users\Administrator\Desktop\运安类库封装\类库管理池\RsLibPool.bdsproj</Transaction>
+    <Transaction>2016/03/08 09:36:06.106.pas,C:\Users\Administrator\Desktop\运安类库封装\类库管理池\Unit1.pas=C:\Users\Administrator\Desktop\运安类库封装\类库管理池\uRsLibPool.pas</Transaction>
+    <Transaction>2016/03/08 09:37:10.036.pas,C:\Users\Administrator\Desktop\运安类库封装\类库管理池\uRsLibPool.pas=C:\Users\Administrator\Desktop\运安类库封装\类库管理池\uRsLibPoolLib.pas</Transaction>
+    <Transaction>2016/03/08 09:57:05.673.pas,C:\Users\Administrator\Desktop\运安类库封装\类库管理池\Unit1.pas=C:\Users\Administrator\Desktop\运安类库封装\类库管理池\RsLibPoolImpl.pas</Transaction>
+  </Transactions>
+</BorlandProject>

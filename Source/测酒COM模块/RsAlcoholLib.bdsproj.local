@@ -1,0 +1,14 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<BorlandProject>
+	<Transactions>
+    <Transaction>2016-06-28 10:36:57.104.bdsproj,C:\Users\Administrator.XZ-20140210GASR\Documents\Borland Studio Projects\Project1.bdsproj=E:\机务运用安全管理系统\02_开发\01_源代码\基线源码\客户端通用动态库\测酒COM模块\RsAlcoholLib.bdsproj</Transaction>
+    <Transaction>2016-06-28 10:37:35.326.pas,E:\机务运用安全管理系统\02_开发\01_源代码\基线源码\客户端通用动态库\测酒COM模块\Unit1.pas=E:\机务运用安全管理系统\02_开发\01_源代码\基线源码\客户端通用动态库\测酒COM模块\uRsAlcoholLibOption_Impl.pas</Transaction>
+    <Transaction>2016-06-28 10:39:34.434.pas,E:\机务运用安全管理系统\02_开发\01_源代码\基线源码\客户端通用动态库\测酒COM模块\Unit1.pas=E:\机务运用安全管理系统\02_开发\01_源代码\基线源码\客户端通用动态库\测酒COM模块\uRsAlcoholLibUI_Impl.pas</Transaction>
+    <Transaction>2016-06-28 13:01:36.457.pas,E:\机务运用安全管理系统\02_开发\01_源代码\基线源码\客户端通用动态库\测酒COM模块\功能窗体\ufrmTestDrinking.pas=</Transaction>
+    <Transaction>2016-06-28 13:01:36.457.dfm,E:\机务运用安全管理系统\02_开发\01_源代码\基线源码\客户端通用动态库\测酒COM模块\功能窗体\ufrmTestDrinking.dfm=</Transaction>
+    <Transaction>2016-07-05 10:32:51.116.pas,E:\机务运用安全管理系统\02_开发\01_源代码\基线源码\客户端通用动态库\Source\测酒COM模块\Unit1.pas=E:\机务运用安全管理系统\02_开发\01_源代码\基线源码\客户端通用动态库\Source\测酒COM模块\功能窗体\uFrmAlcoholUI_ZiZhu.pas</Transaction>
+    <Transaction>2016-07-05 10:32:51.116.dfm,E:\机务运用安全管理系统\02_开发\01_源代码\基线源码\客户端通用动态库\Source\测酒COM模块\Unit1.dfm=E:\机务运用安全管理系统\02_开发\01_源代码\基线源码\客户端通用动态库\Source\测酒COM模块\功能窗体\uFrmAlcoholUI_ZiZhu.dfm</Transaction>
+    <Transaction>2016-07-05 11:06:32.833.pas,E:\机务运用安全管理系统\02_开发\01_源代码\基线源码\客户端通用动态库\Source\测酒COM模块\Unit1.pas=E:\机务运用安全管理系统\02_开发\01_源代码\基线源码\客户端通用动态库\Source\测酒COM模块\功能窗体\uFrmAlcoholUI.pas</Transaction>
+    <Transaction>2016-07-06 13:22:33.287.pas,E:\机务运用安全管理系统\02_开发\01_源代码\基线源码\客户端通用动态库\Source\测酒COM模块\uRsAlcoholLibUI_Impl.pas=E:\机务运用安全管理系统\02_开发\01_源代码\基线源码\客户端通用动态库\Source\测酒COM模块\uRsAlcoholLib_Impl.pas</Transaction>
+  </Transactions>
+</BorlandProject>

@@ -1,0 +1,31 @@
+unit RsUILogin_Impl;
+
+{$WARN SYMBOL_PLATFORM OFF}
+
+interface
+
+uses
+  ComObj, ActiveX, RsUILoginLib_TLB, StdVcl;
+
+type
+  TRsUILogin = class(TAutoObject, IRsUILogin)
+  protected
+    function Login(const UserNumber, Password, VCode: WideString;
+      out TokenString: WideString): WordBool; safecall;
+
+  end;
+
+implementation
+
+uses ComServ;
+
+function TRsUILogin.Login(const UserNumber, Password, VCode: WideString;
+  out TokenString: WideString): WordBool;
+begin
+
+end;
+
+initialization
+  TAutoObjectFactory.Create(ComServer, TRsUILogin, Class_RsUILogin,
+    ciMultiInstance, tmApartment);
+end.

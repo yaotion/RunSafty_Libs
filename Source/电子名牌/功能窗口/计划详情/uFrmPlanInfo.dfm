@@ -1,0 +1,49 @@
+object FrmPlanInfo: TFrmPlanInfo
+  Left = 0
+  Top = 0
+  BorderStyle = bsDialog
+  Caption = #35745#21010
+  ClientHeight = 394
+  ClientWidth = 304
+  Color = clBtnFace
+  Font.Charset = DEFAULT_CHARSET
+  Font.Color = clWindowText
+  Font.Height = -11
+  Font.Name = 'Tahoma'
+  Font.Style = []
+  OldCreateOrder = False
+  Position = poOwnerFormCenter
+  PixelsPerInch = 96
+  TextHeight = 13
+  object Bevel1: TBevel
+    Left = 8
+    Top = 355
+    Width = 289
+    Height = 2
+  end
+  object Button1: TButton
+    Left = 217
+    Top = 361
+    Width = 75
+    Height = 25
+    Caption = #20851#38381
+    TabOrder = 0
+    OnClick = Button1Click
+  end
+  object RzRichEdit1: TRzRichEdit
+    Left = 8
+    Top = 8
+    Width = 288
+    Height = 341
+    Font.Charset = GB2312_CHARSET
+    Font.Color = clWindowText
+    Font.Height = -13
+    Font.Name = 'Tahoma'
+    Font.Style = []
+    ParentFont = False
+    ReadOnly = True
+    TabOrder = 1
+    FrameVisible = True
+    ReadOnlyColor = clWindow
+  end
+end

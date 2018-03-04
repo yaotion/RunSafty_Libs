@@ -1,0 +1,86 @@
+object frmLoading: TfrmLoading
+  Left = 0
+  Top = 0
+  BorderStyle = bsNone
+  Caption = 'frmLoading'
+  ClientHeight = 125
+  ClientWidth = 337
+  Color = 6755347
+  Font.Charset = ANSI_CHARSET
+  Font.Color = clWindowText
+  Font.Height = -12
+  Font.Name = #23435#20307
+  Font.Style = []
+  FormStyle = fsStayOnTop
+  OldCreateOrder = False
+  Position = poDesktopCenter
+  PixelsPerInch = 96
+  TextHeight = 12
+  object Label1: TLabel
+    Left = 139
+    Top = 49
+    Width = 108
+    Height = 24
+    Caption = #35831#31245#21518'...'
+    Font.Charset = ANSI_CHARSET
+    Font.Color = clWhite
+    Font.Height = -24
+    Font.Name = #23435#20307
+    Font.Style = []
+    ParentFont = False
+  end
+  object RzPanel1: TRzPanel
+    Left = 63
+    Top = 36
+    Width = 24
+    Height = 24
+    BorderOuter = fsNone
+    Color = 3718655
+    TabOrder = 0
+  end
+  object RzPanel2: TRzPanel
+    Left = 88
+    Top = 36
+    Width = 24
+    Height = 24
+    BorderOuter = fsNone
+    Color = 7092536
+    Font.Charset = ANSI_CHARSET
+    Font.Color = clWindowText
+    Font.Height = -12
+    Font.Name = #23435#20307
+    Font.Style = []
+    ParentFont = False
+    TabOrder = 1
+  end
+  object RzPanel3: TRzPanel
+    Left = 88
+    Top = 61
+    Width = 24
+    Height = 24
+    BorderOuter = fsNone
+    Color = 7092536
+    TabOrder = 2
+  end
+  object RzPanel4: TRzPanel
+    Left = 63
+    Top = 61
+    Width = 24
+    Height = 24
+    BorderOuter = fsNone
+    Color = 7092536
+    Font.Charset = ANSI_CHARSET
+    Font.Color = clWindowText
+    Font.Height = -12
+    Font.Name = #23435#20307
+    Font.Style = []
+    ParentFont = False
+    TabOrder = 3
+  end
+  object Timer1: TTimer
+    Interval = 200
+    OnTimer = Timer1Timer
+    Left = 144
+    Top = 48
+  end
+end

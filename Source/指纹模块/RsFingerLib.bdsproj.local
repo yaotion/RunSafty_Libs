@@ -1,0 +1,7 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<BorlandProject>
+	<Transactions>
+    <Transaction>2016-06-20 12:42:36.685.bdsproj,C:\Users\Administrator.XZ-20140210GASR\Documents\Borland Studio Projects\Project1.bdsproj=E:\机务运用安全管理系统\02_开发\01_源代码\基线源码\客户端通用动态库\指纹模块\RsFingerLib.bdsproj</Transaction>
+    <Transaction>2016-06-20 12:48:53.473.pas,E:\机务运用安全管理系统\02_开发\01_源代码\基线源码\客户端通用动态库\指纹模块\Unit1.pas=E:\机务运用安全管理系统\02_开发\01_源代码\基线源码\客户端通用动态库\指纹模块\RsFinger_Impl.pas</Transaction>
+  </Transactions>
+</BorlandProject>

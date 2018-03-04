@@ -1,0 +1,746 @@
+unit uFrmNameBoard;
+
+interface
+
+uses
+  Windows, Messages, SysUtils, Variants, Classes, Graphics, Controls, Forms,
+  Dialogs, ComCtrls, RzDTP, StdCtrls, ExtCtrls, Buttons,
+  RzPanel, RzStatus, RzTabs, AdvSplitter, RzTreeVw,
+  uTrainmanJiaolu,uTrainJiaolu,uTrainman, Menus,uStation,
+  uTrainPlan,  Mask, RzEdit, ActnList, PngCustomButton, Contnrs,
+  PngImageList,uDutyPlace,
+  utfLookupEdit,utfPopTypes,RsGlobal_TLB,uScrollView, RzCommon, RzBorder,
+  uWebApiCollection, ImgList,uDialogsLib,uLCNameBoardEx, RzCmboBx,
+  uFrameNamePlate,uBindTMPopEdit, uFramePlateQueue, PngSpeedButton;
+
+type
+  TFrmNameBoard = class(TForm)
+    StatusBar: TRzStatusBar;
+    pnlPlateCount: TRzStatusPane;
+    RzFrameController1: TRzFrameController;
+    pnlTools: TRzPanel;
+    ImageList1: TImageList;
+    PngCustomButton2: TPngCustomButton;
+    PngCustomButton6: TPngCustomButton;
+    PngImageList1: TPngImageList;
+    SaveDialog: TSaveDialog;
+    OpenDialog: TOpenDialog;
+    MainMenu1: TMainMenu;
+    N1: TMenuItem;
+    N2: TMenuItem;
+    N3: TMenuItem;
+    miImportPlates: TMenuItem;
+    miExportPlates: TMenuItem;
+    pnlToolHolder: TRzPanel;
+    RzPanel2: TRzPanel;
+    Panel1: TPanel;
+    cbbTmJl: TRzComboBox;
+    Label1: TLabel;
+    RzPanel3: TRzPanel;
+    tmLookUpEdit: TtfLookupEdit;
+    PageControl: TRzPageControl;
+    FramePlateQueue1: TFramePlateQueue;
+    btnQuery: TPngSpeedButton;
+    btnRefresh: TPngSpeedButton;
+    Panel2: TPanel;
+    procedure btnRefreshClick(Sender: TObject);
+    procedure FormCreate(Sender: TObject);
+    procedure FormDestroy(Sender: TObject);
+    procedure btnQueryClick(Sender: TObject);
+    procedure cbbTmJlChange(Sender: TObject);
+    procedure N2Click(Sender: TObject);
+    procedure miImportPlatesClick(Sender: TObject);
+    procedure miExportPlatesClick(Sender: TObject);
+    procedure tmLookUpEditKeyPress(Sender: TObject; var Key: Char);
+    procedure cbbTmJlMouseWheel(Sender: TObject; Shift: TShiftState;
+      WheelDelta: Integer; MousePos: TPoint; var Handled: Boolean);
+    procedure Panel2Click(Sender: TObject);
+    procedure FormActivate(Sender: TObject);
+    procedure PageControlChange(Sender: TObject);
+  private
+    m_NoFocusHint:  TNoFocusHint;
+    m_TmPopEditBinder: TTmPopEditBinder;
+    procedure FillParam(InputJL: TRsLCBoardInputJL;InputDuty: TRsLCBoardInputDuty);
+    procedure RefreshCurrentPlate;
+    procedure BindPage(jl: TTmJL);
+    procedure DoChangeJL(TmJL: TTmJL;pageIndex: integer = 0);
+    function CurrentPlate(): TFrameNamePlate;
+
+  public
+    { Public declarations }
+    procedure Init();
+    procedure BindJL();
+    class procedure OpenForm();
+  end;
+
+
+
+implementation
+uses
+  uFrmAddCheCi,
+  uFrmAddUser,
+  uFrmAddJiChe,
+  DateUtils,
+  ComObj,
+  uFrmPlanInfo,
+  uFrmNameBorardSelectStation,
+  uGroupXlsExporter,
+  uDutyUser,
+  uGlobal,
+  uTFSystem,
+  uViewDefine,
+  uNamedGroupView,
+  uOrderGroupInTrainView,
+  uOrderGroupView,
+  uTogetherTrainView,
+  uTrainmanView,
+  uTrainmanOrderView,
+  uSaftyEnum,
+  uFrameNamedGrp,
+  uFrameOrderGrp,
+  uFrameTogetherGrp,
+  uFramePrepare,
+  uFrameUnrun,
+  uFrameTxGrp,
+  uFrmNameBoardChangeLog,
+  uFrameNullPlate,
+  uHintWindow;
+var
+  _FrmNameBoard: TFrmNameBoard = nil;
+{$R *.dfm}
+  
+var
+  _TmJLLst: TTmJlLst;
+
+{ TFrmNameBoard }
+procedure TFrmNameBoard.BindJL;
+var
+  I,nIndex: Integer;
+  defaultJLID : string;
+begin
+  cbbTmJl.Items.Clear;
+  nIndex := -1;
+  defaultJLID := GlobalDM.ReadIniConfig('UserData','NameplateDefaultJL');
+  for i := 0 to _TmJLLst.Count - 1 do
+  begin
+    cbbTmJl.Items.AddObject(_TmJLLst[i].Name,_TmJLLst[i]);
+    if (_TmJLLst.Items[i].ID) = defaultJLID then
+    begin
+      nIndex := i;
+    end;
+  end;
+  if (nIndex > -1) then
+    cbbTmJl.ItemIndex := nIndex;
+
+
+
+end;
+
+function GetFrameFromSheet(Sheet: TRzTabSheet): TFrameNamePlate;
+var
+  I: Integer;
+begin
+  Result := nil;
+  for I := 0 to Sheet.ControlCount - 1 do
+  begin
+    if Sheet.Controls[i] is TFrameNamePlate then
+    begin
+      Result := Sheet.Controls[i] as TFrameNamePlate;
+      Break;
+    end;
+  end;
+end;
+
+
+procedure TFrmNameBoard.BindPage(jl: TTmJL);
+  function NewFramePlate(ACaption: string;Jl: TTmJL;AClass: TPlateClass): TFrameNamePlate;
+  var
+    Sheet: TRzTabSheet;
+  begin
+    Sheet := TRzTabSheet.Create(PageControl);
+    Sheet.PageControl := PageControl;
+    Sheet.Caption := ACaption;
+
+    Result := AClass.Create(Sheet);
+    Result.Parent := Sheet;
+    Result.TmJL := jl;
+    Result.ParamCallback := FillParam;
+  end;
+
+  procedure CreateNamedPages(jl: TTmJL);
+  begin
+    NewFramePlate('记名式名牌',jl,TFrameNamedGrp);
+    NewFramePlate(SHEET_PREPARESTATECAPTION,jl,TFramePrepare);
+    NewFramePlate(SHEET_LEAVESTATECAPTION,jl,TFrameUnrun);
+    NewFramePlate(SHEET_TXCAPTION,jl,TFrameTxGrp);
+  end;
+  procedure CreateOrderPages(jl: TTmJL);
+  var
+    i: Integer;
+  begin
+    for i := 0 to jl.PlaceLst.Count - 1 do
+    begin
+      NewFramePlate(jl.PlaceLst.PlaceName[i],JL,TFrameOrderGrp);
+    end;
+    NewFramePlate(SHEET_PREPARESTATECAPTION,jl,TFramePrepare);
+    NewFramePlate(SHEET_LEAVESTATECAPTION,jl,TFrameUnrun);
+    NewFramePlate(SHEET_TXCAPTION,jl,TFrameTxGrp);
+
+  end;
+  procedure CreateTogetherPages(jl: TTmJL);
+  begin
+    NewFramePlate('包乘名牌',jl,TFrameTogetherGrp);
+    NewFramePlate(SHEET_PREPARESTATECAPTION,jl,TFramePrepare);
+    NewFramePlate(SHEET_LEAVESTATECAPTION,jl,TFrameUnrun);
+    NewFramePlate(SHEET_TXCAPTION,jl,TFrameTxGrp);
+  end;
+
+  procedure CreateNullPlatePages(jl: TTmJL);
+  begin
+    NewFramePlate(SHEET_NONEPLATECAPTION,jl,TFrameNullPlate);
+  end;
+
+  procedure CreateAllUnRunPages(jl: TTmJL);
+  begin
+    NewFramePlate(SHEET_LEAVESTATECAPTION,jl,TFrameUnrun);
+  end;
+
+  procedure ClearPages();
+  var
+    i: integer;
+  begin
+    I := 0;
+    while I < PageControl.ComponentCount do
+    begin
+      if PageControl.Components[I] is TRzTabSheet then
+        PageControl.Components[I].Free
+      else
+        Inc(I);
+    end;
+  end;
+var
+  FrameNamePlate: TFrameNamePlate;
+begin
+  FrameNamePlate := CurrentPlate();
+
+  if FrameNamePlate <> nil then
+  begin
+    if FrameNamePlate.TmJl.ID = jl.ID then Exit;
+  end;
+
+  //清除之间数据
+  ClearPages();
+
+
+  case TRsJiaoluType(jl.JlType) of
+    jltNamed: CreateNamedPages(jl);
+    jltOrder: CreateOrderPages(jl);
+    jltTogether: CreateTogetherPages(jl);
+    jltAny: CreateNullPlatePages(jl);
+    jltUnrun: CreateAllUnRunPages(jl);
+  end;
+end;
+
+procedure TFrmNameBoard.Init;
+begin
+  G_NamePlateLogInput := FillParam;
+  _TmJLLst.Init();
+  BindJL();
+end;
+
+procedure TFrmNameBoard.N2Click(Sender: TObject);
+begin
+  TfrmNameBoardChangeLog.Open;
+end;
+
+procedure TFrmNameBoard.miImportPlatesClick(Sender: TObject);
+var
+  strError:string;
+  jlRec : RRsTrainmanJiaolu;
+  GroupXlsExporter: TGroupXlsExporter;
+  jl : TTmJL;
+begin
+  jl := CurrentPlate.TmJl;
+  if not TBox('导入名牌会删除旧名牌信息,是否继续?') then
+    Exit;
+
+  if not LCWebAPI.LCNameBoard.DeleteNamedGroupByJiaoLu(jl.ID,strError) then
+  begin
+    Box(strError);
+    Exit ;
+  end;
+
+  if not OpenDialog.Execute then Exit;
+
+  GroupXlsExporter := TGroupXlsExporter.Create(LCWebAPI.LCNameBoardEx,
+    LCWebAPI.LCTrainmanMgr,LCWebAPI.LCNameBoard);
+  try
+    jlRec.strTrainmanJiaoluGUID := jl.ID;
+    jlRec.strTrainmanJiaoluName := jl.Name;
+    jlRec.nJiaoluType := TRsJiaoluType(jl.JlType);
+
+    GroupXlsExporter.ImportGroups(jlRec,OpenDialog.FileName,GlobalDM.User.ID,
+      GlobalDM.User.Number,GlobalDM.User.Name);
+    RefreshCurrentPlate;
+  finally
+    GroupXlsExporter.Free;
+  end;
+end;
+
+
+procedure TFrmNameBoard.miExportPlatesClick(Sender: TObject);
+begin
+  if CurrentPlate = nil then
+  begin
+    Box('请先选择一个人员交路');
+    Exit;
+  end;
+
+  if not SaveDialog.Execute(Self.Handle)  then
+    Exit ;
+
+    
+  CurrentPlate.ExportPlates(SaveDialog.FileName);
+end;
+
+class procedure TFrmNameBoard.OpenForm();
+begin
+  _FrmNameBoard := TFrmNameBoard.Create(nil);
+  _FrmNameBoard.Init();
+  _FrmNameBoard.ShowModal;
+  _FrmNameBoard.Free;
+end;
+
+procedure TFrmNameBoard.PageControlChange(Sender: TObject);
+begin
+  GlobalDM.WriteIniConfig('UserData','NameplateDefaultJLPlace',PageControl.ActivePage.Caption);
+  btnRefresh.Click;
+end;
+
+procedure TFrmNameBoard.Panel2Click(Sender: TObject);
+begin
+  FramePlateQueue1.Visible := not FramePlateQueue1.Visible ;
+end;
+
+procedure TFrmNameBoard.DoChangeJL(TmJL: TTmJL;pageIndex: integer);
+begin
+  BindPage(TmJL);
+
+  if pageIndex = -1 then
+    pageIndex := 0;
+  if (PageControl.PageCount > pageIndex) then
+  begin
+    PageControl.ActivePageIndex := pageIndex;
+  end;
+
+  if CurrentPlate <> nil then
+  begin
+    miImportPlates.Enabled := CurrentPlate.CanImport;
+    miExportPlates.Enabled := True;
+  end
+  else
+  begin
+    miImportPlates.Enabled := False;
+    miExportPlates.Enabled := False;
+  end;
+
+end;
+
+
+
+
+procedure TFrmNameBoard.RefreshCurrentPlate;
+begin
+  m_NoFocusHint.Hint('正在加载名牌信息……');
+  try
+    GetFrameFromSheet(PageControl.ActivePage).RefreshViews();
+  finally
+    m_NoFocusHint.Close;
+  end;
+end;
+
+procedure TFrmNameBoard.tmLookUpEditKeyPress(Sender: TObject; var Key: Char);
+begin
+  if Key = #13 then
+  begin
+    key := #0;
+    btnQuery.Click;
+  end;
+end;
+
+procedure TFrmNameBoard.btnQueryClick(Sender: TObject);
+var
+  ret : TNpSearchResult;
+  
+  //未找到人员时，生成根据不同状态后成提示信息 
+  function GetHintString(): string;
+  var
+    I: Integer;
+    bLocalWorkShop: Boolean;
+  begin
+    bLocalWorkShop := False;
+    for I := 0 to _TmJLLst.Count - 1 do
+    begin
+      if _TmJLLst[i].ID = ret.JlID then
+      begin
+        bLocalWorkShop := True;
+        Break;
+      end;
+    end;
+    
+    case ret.TmState of
+      0,1,2:
+        begin
+          if not bLocalWorkShop then
+            Result := Format('该人员在[%s]交路',[ret.JlName])
+          else
+            Result := '未找到该人员';
+        end;
+      7:
+        begin
+            Result := '未找到该人员,请确认该人员是本车间人员';
+        end;
+    end;
+  end;
+
+  //获取所在页的索引，根据页标题获取
+  function FindPageIndex(SheetCaption: string): integer;
+  var
+    i: integer;
+  begin
+    Result := -1;
+    for I := 0 to PageControl.PageCount - 1 do
+    begin
+      if PageControl.Pages[i].Caption = SheetCaption then
+      begin
+        Result := i;
+        Break;
+      end;
+    end;
+  end;
+
+  //根据查找人员返回的状态信息，获取所在页
+  function GetPageIndex(): integer;
+  begin
+
+    case ret.TmState of
+      0:
+        begin
+          Result := FindPageIndex(SHEET_LEAVESTATECAPTION);
+        end;
+      1:
+        begin
+          Result := FindPageIndex(SHEET_PREPARESTATECAPTION);
+        end;
+      2:
+        begin
+          //如果是调休状态，则切换到调休页
+          if Ret.TxState <> 0 then
+            Result := FindPageIndex(SHEET_TXCAPTION)
+          else
+            Result := FindPageIndex(ret.PlaceName);
+        end;
+
+      7: Result := 0;
+    else
+      Result := 0;
+    end;
+
+    if Result < 0 then
+      Result := 0;
+
+
+  end;
+
+  {切换Page页(各出勤点、预备、非运转、调休
+  都在同一个交路下面，需要通过切换PAGE来找到对应的名牌信息}
+  procedure ChangePage();
+  var
+    pageindex: integer;
+  begin
+    pageindex := GetPageIndex();
+
+    if (PageControl.PageCount > pageIndex) then
+    begin
+      PageControl.ActivePageIndex := pageIndex;
+    end;
+  end;
+
+  //查找人员，RefreshView指定是否需要刷新数据
+  procedure Search(Tm: PTm;RefreshView: Boolean);
+  begin
+    ChangePage();
+    
+    if not CurrentPlate.Search(Tm) then
+    begin
+      if RefreshView then
+      begin
+        CurrentPlate.RefreshViews();
+        Search(Tm,False);
+      end
+      else
+        Box(GetHintString());
+
+    end;
+  end;
+
+  //当前交路是否为指定交路
+  function CurrentJLEqual(const JlID: string): Boolean;
+  begin
+    Result := (CurrentPlate <> nil) and (CurrentPlate.TmJl.ID = JlID);
+  end;
+
+  //切换交路
+  function ChangeJL(jlid: string): Boolean;
+  var
+    i: integer;
+  begin
+    Result := False;
+    for i := 0 to _TmJLLst.Count - 1 do
+    begin
+      if TTmJL(cbbTmJl.Items.Objects[i]).ID = jlid then
+      begin
+        Result := True;
+
+        cbbTmJl.ItemIndex := i;
+
+        DoChangeJL(TTmJL(cbbTmJl.Items.Objects[i]),GetPageIndex());
+  
+        Exit;
+      end;
+
+    end;
+  end;
+
+  procedure QueryState0(Tm: PTm);
+  begin
+    {
+      如果当前交路为全车间的“非运转”人员，则不进行交路切换，在当前交路查找
+      ，没有找到则刷新后重找，再没有找到则提示“未找到”
+      如果当前交路为某一普通交路则判断当前交中是否为目标交路，如不是则切为交路
+      然后(需要先切换到非转转页)进行查找
+
+
+    }
+    if CurrentJLEqual(SHEET_LEAVESTATECAPTION) then
+    begin
+      Search(Tm,True);
+    end
+    else
+    if CurrentJLEqual(ret.JlID) then
+    begin
+      Search(Tm,True);
+    end
+    else
+    begin
+      ChangeJL(ret.JlID);
+      Search(Tm,False);
+    end;
+
+  end;
+
+  procedure QueryState1(Tm: PTm);
+  begin
+    if CurrentJLEqual(ret.JlID) then
+    begin
+      Search(Tm,True);
+    end
+    else
+    begin
+      ChangeJL(ret.JlID);
+      Search(Tm,False);
+    end;
+
+  end;
+
+  procedure QueryState2(Tm: PTm);
+  begin
+    if CurrentJLEqual(ret.JlID) then
+    begin
+      Search(Tm,True);
+    end
+    else
+    begin
+      ChangeJL(ret.JlID);
+      Search(Tm,False);
+    end;
+  end;
+
+  procedure QueryState7(Tm: PTm);
+  begin
+    if CurrentJLEqual(SHEET_NONEPLATECAPTION)  then
+    begin
+      Search(Tm,True);
+    end
+    else
+    begin
+      ChangeJL(SHEET_NONEPLATECAPTION);
+      Search(Tm,False);
+    end;
+  end;
+
+begin
+  if m_TmPopEditBinder.Selected.strTrainmanGUID = '' then
+  begin
+    RefreshCurrentPlate();
+    Exit;
+  end;
+
+  //先在当前名牌上查找，没有找到再从服务器查找
+  if (CurrentPlate <> nil) and CurrentPlate.Search(PTm(@m_TmPopEditBinder.Selected)) then
+  begin
+    Exit;
+  end;
+  
+  ret := TNpSearchResult.Create;
+  try
+    if not LCWebAPI.LCBoardTrainman.Find(m_TmPopEditBinder.Selected.strTrainmanNumber,ret) then
+    begin
+      Box('未找到指定的人员!');
+      Exit;
+    end;
+    if not ret.Find then
+    begin
+      Box('未找到指定的人员!');
+      Exit;
+    end;
+
+    //现场数据中，有些人员状态为1  但所在交路却为空，此时认定该人员为未在牌
+    if (ret.TmState = Ord(tsReady)) and (ret.JlID = '') then
+    begin
+      ret.TmState := Ord(tsNil);
+    end;
+
+    {
+    查找逻辑：
+    1、根据不同的返回状态，调用相应的查找函数，如：QueryState0
+    2、判断当前名牌所在交路是否为目标交路，如是相同交路则跳过第3步
+    3、切换交路为目标交路
+    4、根据人员状态切换到对应的PAGE页
+    5、先在当前名牌列表中查找，未找到的话则刷新一次数据重新查找
+    6、如查找到人员则定位到对应名牌，如未找到人员则提示相应的信息   
+    }
+    //状态为0 1 2 7
+    //查看当前交路是否是目标交路，查看当前名牌类型是否为目标类型（预备、请假）
+    case ret.TmState of
+      0: QueryState0(PTm(@m_TmPopEditBinder.Selected));
+      1: QueryState1(PTm(@m_TmPopEditBinder.Selected));
+      2: QueryState2(PTm(@m_TmPopEditBinder.Selected));
+      7: QueryState7(PTm(@m_TmPopEditBinder.Selected));  
+    end;
+
+  finally
+    ret.Free;
+  end;
+end;
+
+procedure TFrmNameBoard.btnRefreshClick(Sender: TObject);
+begin
+ if PageControl.ActivePage = nil then Exit;
+
+  FramePlateQueue1.BindScrollView(nil);
+
+  FramePlateQueue1.ClearQueue;
+
+  RefreshCurrentPlate;
+
+  if CurrentPlate <> nil then
+  begin
+    CurrentPlate.ShowToolButtons(pnlToolHolder);
+    FramePlateQueue1.BindScrollView(CurrentPlate.ScrollView);
+  end;
+
+end;
+
+procedure TFrmNameBoard.cbbTmJlChange(Sender: TObject);
+begin
+  if TRzComboBox(Sender).ItemIndex = -1 then Exit;
+  DoChangeJL(TTmJL(TRzComboBox(Sender).Items.Objects[TRzComboBox(Sender).ItemIndex]));
+  GlobalDM.WriteIniConfig('UserData','NameplateDefaultJL',
+    TTmJL(TRzComboBox(Sender).Items.Objects[TRzComboBox(Sender).ItemIndex]).ID);
+end;
+
+
+procedure TFrmNameBoard.cbbTmJlMouseWheel(Sender: TObject; Shift: TShiftState;
+  WheelDelta: Integer; MousePos: TPoint; var Handled: Boolean);
+begin
+  Handled := True;
+end;
+
+procedure TFrmNameBoard.FillParam(InputJL: TRsLCBoardInputJL;
+  InputDuty: TRsLCBoardInputDuty);
+begin
+  if CurrentPlate = nil then Raise Exception.Create('当前交路为空!');
+
+  with CurrentPlate.TmJl do
+  begin
+    InputJL.jiaoluID := ID;
+    InputJL.jiaoluName := Name;
+    InputJL.jiaoluType := JlType;
+  end;
+
+  InputDuty.strDutyGUID := GlobalDM.User.ID;
+  InputDuty.strDutyNumber := GlobalDM.User.Number;
+  InputDuty.strDutyName := GlobalDM.User.Name;
+end;
+
+procedure TFrmNameBoard.FormActivate(Sender: TObject);
+var
+  i: Integer;
+  strDefaultPage : string;
+begin
+  if cbbTmJl.ItemIndex > -1 then
+   cbbTmJlChange(cbbTmJl);
+  strDefaultPage := 
+  for i := 0 to PageControl.PageCount - 1 do
+  begin
+    if (PageControl.Pages[i].Caption) then
+    
+  end;
+end;
+
+procedure TFrmNameBoard.FormCreate(Sender: TObject);
+begin
+  m_NoFocusHint := TNoFocusHint.Create;
+  m_TmPopEditBinder := TTmPopEditBinder.Create;
+  m_TmPopEditBinder.Bind(GlobalDM.WorkShop.ID,LCWebAPI.LCTrainmanMgr,tmLookUpEdit);
+end;
+
+procedure TFrmNameBoard.FormDestroy(Sender: TObject);
+begin
+  G_NamePlateLogInput := nil;
+  m_TmPopEditBinder.Free;
+  m_NoFocusHint.Free;
+end;
+
+function TFrmNameBoard.CurrentPlate: TFrameNamePlate;
+var
+  I: integer;
+begin
+  Result := nil;
+  if PageControl.PageCount = 0 then Exit;
+
+  for I := 0 to PageControl.ActivePage.ControlCount - 1 do
+  begin
+    if PageControl.ActivePage.Controls[i] is TFrameNamePlate then
+    begin
+      Result := PageControl.ActivePage.Controls[i] as TFrameNamePlate;
+      Break;
+    end;
+  end;
+  
+end;
+
+
+
+
+
+initialization
+  _TmJLLst := TTmJlLst.Create;
+
+finalization
+  FreeAndNil(_TmJLLst);
+
+
+end.
+

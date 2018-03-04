@@ -1,0 +1,16 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<BorlandProject>
+	<Transactions>
+    <Transaction>2016-11-15 16:08:48.529.bdsproj,C:\Users\Administrator\Documents\Borland Studio Projects\Project1.bdsproj=E:\姚新\畅想\代码\项目\机务运用安全管理系统\02_开发\01_源代码\基线源码\客户端通用动态库\Source\机车计划\RsBJTrainPlan.bdsproj</Transaction>
+    <Transaction>2016-11-15 16:09:25.142.bdsproj,E:\姚新\畅想\代码\项目\机务运用安全管理系统\02_开发\01_源代码\基线源码\客户端通用动态库\Source\机车计划\RsBJTrainPlan.bdsproj=E:\姚新\畅想\代码\项目\机务运用安全管理系统\02_开发\01_源代码\基线源码\客户端通用动态库\Source\机车计划\RsBJTrainPlanLib.bdsproj</Transaction>
+    <Transaction>2016-11-15 16:09:57.983.pas,E:\姚新\畅想\代码\项目\机务运用安全管理系统\02_开发\01_源代码\基线源码\客户端通用动态库\Source\机车计划\Unit1.pas=E:\姚新\畅想\代码\项目\机务运用安全管理系统\02_开发\01_源代码\基线源码\客户端通用动态库\Source\机车计划\RsBJTrainPlan_Impl.pas</Transaction>
+    <Transaction>2016-11-15 16:44:45.838.pas,E:\姚新\畅想\代码\项目\机务运用安全管理系统\02_开发\01_源代码\基线源码\客户端通用动态库\Source\机车计划\RsBJTrainPlan_Impl.pas=</Transaction>
+    <Transaction>2016-11-15 16:45:34.163.pas,E:\姚新\畅想\代码\项目\机务运用安全管理系统\02_开发\01_源代码\基线源码\客户端通用动态库\Source\机车计划\Unit1.pas=E:\姚新\畅想\代码\项目\机务运用安全管理系统\02_开发\01_源代码\基线源码\客户端通用动态库\Source\机车计划\RsBJTrainPlan_Impl.pas</Transaction>
+    <Transaction>2016-11-17 14:55:30.409.pas,E:\姚新\畅想\代码\项目\机务运用安全管理系统\02_开发\01_源代码\基线源码\客户端通用动态库\Source\机车计划\功能单元\uDBTemplateDayPlan.pas=</Transaction>
+    <Transaction>2016-11-18 15:06:16.930.pas,D:\工作\机务运用安全管理系统\02_开发\01_源代码\基线源码\接口翻译\客户端\Source\功能窗口\提示窗口\ufrmHint.pas=</Transaction>
+    <Transaction>2016-11-18 15:06:16.930.dfm,D:\工作\机务运用安全管理系统\02_开发\01_源代码\基线源码\接口翻译\客户端\Source\功能窗口\提示窗口\ufrmHint.dfm=</Transaction>
+    <Transaction>2016-11-18 15:06:19.253.pas,D:\工作\机务运用安全管理系统\02_开发\01_源代码\基线源码\接口翻译\客户端\Source\功能窗口\自动关闭无焦点对话框\utfPopBox.pas=</Transaction>
+    <Transaction>2016-11-18 15:06:19.253.dfm,D:\工作\机务运用安全管理系统\02_开发\01_源代码\基线源码\接口翻译\客户端\Source\功能窗口\自动关闭无焦点对话框\utfPopBox.dfm=</Transaction>
+    <Transaction>2016-11-18 15:09:05.793.pas,D:\工作\机务运用安全管理系统\02_开发\01_源代码\基线源码\客户端通用动态库\Source\机车计划\Unit1.pas=D:\工作\机务运用安全管理系统\02_开发\01_源代码\基线源码\客户端通用动态库\Source\机车计划\uGlobal.pas</Transaction>
+  </Transactions>
+</BorlandProject>

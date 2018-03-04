@@ -1,0 +1,229 @@
+unit uFrameUnrun;
+
+interface
+
+uses
+  Windows, Messages, SysUtils, Variants, Classes, Graphics, Controls, Forms,
+  Dialogs, uFrameNamePlate,uTrainman, ExtCtrls, RzPanel,Menus,uScrollView,uViewGroup;
+
+type
+  TMenuActions = class;
+  TFrameUnrun = class(TFrameNamePlate)
+    PopupMenu_View: TPopupMenu;
+    procedure PopupMenu_ViewPopup(Sender: TObject);
+  private
+    { Private declarations }
+    m_MenuActions: TMenuActions;
+  public
+    { Public declarations }
+    constructor Create(AOwner: TComponent); override;
+    function Search(Tm: PTm): Boolean;override;
+    procedure RefreshViews();override;
+    procedure ExportPlates(const FileName: string);override;
+  end;
+
+
+  TMenuActions = class(TComponent)
+  public
+    constructor NewCreate(Frame: TFrameUnrun);
+  protected
+    m_Frame: TFrameUnrun;
+  public
+    procedure CreateMenus(View: TView;PopMenu: TPopupMenu);
+    procedure CancelLeave(Sender: TObject);
+  end;
+
+  
+implementation
+uses
+  uGlobal,
+  uWebApiCollection,
+  uTrainmanView,
+  uNamePlatesExporter;
+{$R *.dfm}
+
+{ TFrameUnrun }
+
+constructor TFrameUnrun.Create(AOwner: TComponent);
+begin
+  inherited;
+  m_ScrollView.DragEnable := False;
+  m_MenuActions := TMenuActions.NewCreate(self);
+  m_ScrollView.ViewPopMenue := PopupMenu_View;
+end;
+
+
+procedure TFrameUnrun.ExportPlates(const FileName: string);
+var
+  NpLeaveList: TNpLeaveList;
+  NpLeave: TNpLeave;
+  NpTm: TNpTm;
+  I, J: Integer;
+begin
+  NpLeaveList := TNpLeaveList.Create;
+  try
+
+    for I := 0 to m_ScrollView.Views.Count - 1 do
+    begin
+      NpLeave := TNpLeave.Create;
+      NpLeaveList.Add(NpLeave);
+      NpLeave.Name := (m_ScrollView.Views[i] as TViewGroup).Title.Caption;
+      for J := 0 to m_ScrollView.Views[i].Items.Count - 1 do
+      begin
+        NpTm := TNpTm.Create;
+        NpTm.Name :=
+        (m_ScrollView.Views[i].Items[j] as TTrainmanView).Trainman.strTrainmanName;
+
+        NpTm.Number :=
+        (m_ScrollView.Views[i].Items[j] as TTrainmanView).Trainman.strTrainmanNumber;
+
+
+        NpLeave.TmList.Add(NpTm)
+      end;
+      
+    end;
+    
+    TNamePlatesExport.ExportPlates(FileName,TmJl.Name,NpLeaveList);
+  finally
+    NpLeaveList.Free;
+  end;
+
+
+end;
+
+procedure TFrameUnrun.PopupMenu_ViewPopup(Sender: TObject);
+begin
+  m_MenuActions.CreateMenus(m_ScrollView.PopupView,PopupMenu_View)
+end;
+
+procedure TFrameUnrun.RefreshViews;
+var
+  TmArray: TRsTrainmanLeaveArray;
+  View: TViewGroup;
+  TmView: TTrainmanView;
+  I: Integer;
+  jlid: string;
+  function GetViewGrp(LeaveType: string): TViewGroup;
+  var
+    i: integer;
+  begin
+    if LeaveType = '' then
+      LeaveType := '无类型';
+      
+    Result := nil;
+    for I := 0 to m_ScrollView.Views.Count - 1 do
+    begin
+      if (m_ScrollView.Views[i] as TViewGroup).Title.Caption = LeaveType then
+      begin
+        Result := m_ScrollView.Views[i] as TViewGroup;
+        Break;
+      end;
+    end;
+
+    if Result = nil then
+    begin
+      Result := TViewGroup.Create;
+      Result.Color := $0057544F;
+      Result.BorderColor := $00CECEC6;
+      Result.Title.Caption := LeaveType;
+      Result.Title.Font.Size := 12;
+      Result.Title.Font.Style := [fsBold];
+      Result.Title.Color := $0087827A; 
+      Result.Margin.Top := 0;
+      Result.Margin.Bottom := 1;
+
+      m_ScrollView.Views.AddView(Result);
+    end;
+  end;
+begin
+  jlid := m_TmJl.ID;
+  if jlid = SHEET_LEAVESTATECAPTION then
+    jlid := '';
+  
+  LCWebAPI.LCNameBoardEx.Trainman.GetUnRun(GlobalDM.WorkShop.ID,jlid,TmArray);
+
+  m_ScrollView.Views.BeginUpdate;
+  try
+    m_ScrollView.Views.Clear;
+    for I := 0 to Length(TmArray) - 1 do
+    begin
+      View := GetViewGrp(TmArray[i].strLeaveTypeName);
+      TmView := TTrainmanView.Create;
+      TmView.Trainman := TmArray[i].Trainman;
+      TMView.LeaveAlart := false;
+      if (TMArray[i].dEndTime > StrToDateTime('2001-01-01')) then
+      begin
+        if (TmArray[i].dEndTime < Now ) then
+        begin
+          TMView.LeaveAlart := true;
+        end;
+      end;
+      
+      View.Items.AddView(TmView)
+      tmView.ShowOrder := true;
+      tmView.Order := tmView.Parent.Items.IndexOf(tmView) + 1;
+    end;
+    
+  finally
+    m_ScrollView.Views.EndUpdate;
+  end;
+end;
+
+function TFrameUnrun.Search(Tm: PTm): Boolean;
+var
+  i,j: Integer;
+  v : TViewGroup;
+begin
+  Result := False;
+  for i := 0 to m_ScrollView.Views.Count - 1 do
+  begin
+    v := TViewGroup(m_ScrollView.Views[i]);
+    for j := 0 to v.Items.Count - 1 do
+    begin
+      if TTrainmanView(v.Items[j]).Trainman.strTrainmanNumber = Tm.strTrainmanNumber then
+      begin
+        m_ScrollView.MakeVisible(v.Items[j],true);
+        Result := True;
+        Exit;
+      end;
+    end;
+  end;
+end;
+{ TShareActions }
+
+procedure TMenuActions.CancelLeave(Sender: TObject);
+begin
+  with m_Frame.m_ScrollView do
+  begin
+
+    if LeaveLib.Cancel((PopupView as TTrainmanView).Trainman.strTrainmanNumber) then
+    begin
+      PopupView.Parent.Items.BeginUpdate;
+
+      PopupView.Parent.Items.Remove(PopupView);
+
+      PopupView.Parent.Items.EndUpdate;
+    end;
+  end;
+end;
+
+
+procedure TMenuActions.CreateMenus(View: TView; PopMenu: TPopupMenu);
+begin
+  PopMenu.Items.Clear;
+  if View is TTrainmanView then
+  begin
+    with View as TTrainmanView do
+    begin
+      AddMenuItem('销假',CancelLeave,PopMenu);
+    end;
+  end;
+end;
+
+constructor TMenuActions.NewCreate(Frame: TFrameUnrun);
+begin
+  inherited Create(Frame);
+  m_Frame := Frame;
+end;
+
+end.

@@ -1,0 +1,9 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<BorlandProject>
+	<Transactions>
+    <Transaction>2016-11-16 08:49:29.675.bdsproj,D:\用户目录\Documents\Borland Studio Projects\Project1.bdsproj=D:\工作\机务运用安全管理系统\02_开发\01_源代码\基线源码\客户端通用动态库\Source\物品管理\RsGoodsManage.bdsproj</Transaction>
+    <Transaction>2016-11-16 08:56:21.613.pas,D:\工作\机务运用安全管理系统\02_开发\01_源代码\基线源码\客户端通用动态库\Source\物品管理\Unit1.pas=D:\工作\机务运用安全管理系统\02_开发\01_源代码\基线源码\客户端通用动态库\Source\物品管理\uGlobal.pas</Transaction>
+    <Transaction>2016-11-16 10:05:56.650.pas,D:\工作\机务运用安全管理系统\02_开发\01_源代码\基线源码\客户端通用动态库\Source\物品管理\Unit1.pas=D:\工作\机务运用安全管理系统\02_开发\01_源代码\基线源码\客户端通用动态库\Source\物品管理\uGoodsManageImp.pas</Transaction>
+    <Transaction>2016-11-21 11:16:10.199.pas,D:\工作\机务运用安全管理系统\02_开发\01_源代码\基线源码\客户端通用动态库\Source\指纹模块\RsFingerLib_TLB.pas=</Transaction>
+  </Transactions>
+</BorlandProject>

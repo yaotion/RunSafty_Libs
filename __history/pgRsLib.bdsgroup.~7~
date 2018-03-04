@@ -1,0 +1,22 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<BorlandProject>
+	<PersonalityInfo>
+		<Option>
+			<Option Name="Personality">Default.Personality</Option>
+			<Option Name="ProjectType"></Option>
+			<Option Name="Version">1.0</Option>
+			<Option Name="GUID">{BEAD6E73-FC92-44C7-963D-BF6DEA09DBC6}</Option>
+		</Option>
+	</PersonalityInfo>
+	<Default.Personality>  <Projects>
+      <Projects Name="RsCameraLib.dll">摄像头模块\RsCameraLib.bdsproj</Projects>
+      <Projects Name="RsAlcoholLib.dll">测酒模块\RsAlcoholLib.bdsproj</Projects>
+      <Projects Name="RsLibPool.dll">类库管理池\RsLibPool.bdsproj</Projects>
+      <Projects Name="RsLibDemo.exe">类库调用Demo\RsLibDemo.bdsproj</Projects>
+      <Projects Name="RsFingerLib.dll">指纹仪封装\RsFingerLib.bdsproj</Projects>
+      <Projects Name="RsLibMQ.dll">MQ操作\RsLibMQ.bdsproj</Projects>
+      <Projects Name="Targets">RsCameraLib.dll RsAlcoholLib.dll RsLibPool.dll RsLibDemo.exe RsFingerLib.dll RsLibMQ.dll</Projects>
+    </Projects>
+    <Dependencies/>
+  </Default.Personality>
+</BorlandProject>

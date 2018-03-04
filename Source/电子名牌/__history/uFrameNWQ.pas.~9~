@@ -1,0 +1,50 @@
+unit uFrameNWQ;
+
+interface
+
+uses
+  Windows, Messages, SysUtils, Variants, Classes, Graphics, Controls, Forms,
+  Dialogs, uFrameNamePlate,uTrainman, ExtCtrls, RzPanel,Menus,uScrollView,uViewGroup;
+
+type
+  TFrameNWQ = class(TFrameNamePlate)
+  private
+    { Private declarations }
+  public
+    { Public declarations }
+    constructor Create(AOwner: TComponent); override;
+    function Search(Tm: PTm): Boolean;override;
+    procedure RefreshViews();override;
+    procedure ExportPlates(const FileName: string);override;
+  end;
+
+implementation
+
+{$R *.dfm}
+
+{ TFrameUnrun }
+
+constructor TFrameNWQ.Create(AOwner: TComponent);
+begin
+  inherited;
+  m_ScrollView.DragEnable := False;
+end;
+
+procedure TFrameNWQ.ExportPlates(const FileName: string);
+begin
+  inherited;
+
+end;
+
+procedure TFrameNWQ.RefreshViews;
+begin
+  inherited;
+
+end;
+
+function TFrameNWQ.Search(Tm: PTm): Boolean;
+begin
+
+end;
+
+end.

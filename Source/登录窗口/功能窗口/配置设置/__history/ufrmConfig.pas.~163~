@@ -1,0 +1,154 @@
+unit ufrmConfig;
+
+interface
+
+uses
+  Windows, Messages, SysUtils, Variants, Classes, Graphics, Controls, Forms,
+  Dialogs, ExtCtrls, RzPanel, StdCtrls, PngImageList, Buttons, PngCustomButton,
+  DB, ADODB, ImgList, ActnList, ComCtrls, Mask, RzEdit, RzLabel, uFrmSQLConfig,
+  utfSQLConn, IdBaseComponent, IdComponent, IdTCPConnection, IdTCPClient,
+  IdExplicitTLSClientServerBase, IdFTP, AdvSpin,uTFSystem, RzDTP, RzButton,
+  RzRadChk, RzTabs, pngimage,Registry{,uLLCommonFun};
+
+type
+  TfrmConfig = class(TForm)
+    RzPanel1: TRzPanel;
+    Image1: TImage;
+    RzTabControl1: TRzTabControl;
+    RzPanel2: TRzPanel;
+    PageControl1: TPageControl;
+    TabSheet1: TTabSheet;
+    edtHost: TEdit;
+    Label1: TLabel;
+    RzPanel3: TRzPanel;
+    btnSave: TButton;
+    btnCancel: TButton;
+    Label2: TLabel;
+    checkAllowOffline: TCheckBox;
+    checkAutoLogin: TCheckBox;
+    procedure btnCancelClick(Sender: TObject);
+    procedure btnSaveClick(Sender: TObject);
+    procedure FormCreate(Sender: TObject);
+    procedure RzTabControl1Change(Sender: TObject);
+    procedure checkAutoStartClick(Sender: TObject);
+    procedure checkAutoLoginClick(Sender: TObject);
+  private
+    { Private declarations }
+    procedure Init;
+    //检测输入
+    function CheckInput : boolean;
+    procedure SetAutoStart(AutoStart : boolean);
+  public
+    { Public declarations }
+    class function EditConfig() : boolean;
+  end;
+
+
+
+implementation
+uses
+  uGlobal{uGlobalDM, uFrmWorkFlowCheck};
+{$R *.dfm}
+
+{ TfrmConfig }
+
+procedure TfrmConfig.btnCancelClick(Sender: TObject);
+begin
+  ModalResult := mrCancel;
+end;
+
+procedure TfrmConfig.btnSaveClick(Sender: TObject);
+begin
+  if not CheckInput then exit;
+  GlobalConfig.HostUrl := edtHost.Text;
+  GlobalConfig.AllowOffline := checkAllowOffline.Checked;
+  GlobalConfig.Autostart := checkAutoStart.Checked;
+  GlobalConfig.Autologin := checkAutoLogin.Checked;
+  GlobalConfig.Save;
+  ModalResult := mrOk;
+end;
+
+procedure TfrmConfig.checkAutoLoginClick(Sender: TObject);
+begin
+  GlobalConfig.Autologin := checkAutoLogin.Checked;
+  GlobalConfig.Save;
+end;
+
+procedure TfrmConfig.checkAutoStartClick(Sender: TObject);
+begin
+  SetAutoStart(checkAutoStart.Checked);
+  GlobalConfig.Autostart := checkAutoStart.Checked;
+  GlobalConfig.Save;
+end;
+
+function TfrmConfig.CheckInput: boolean;
+begin
+  result := true;
+end;
+
+
+
+class function TfrmConfig.EditConfig: boolean;
+var
+  frmConfig : TfrmConfig;
+begin
+  result := false;
+  frmConfig := TfrmConfig.Create(nil);
+  try
+    frmConfig.Init;
+    if frmConfig.ShowModal = mrCancel then exit;
+    result := true;
+  finally
+    frmConfig.Free;
+  end;
+end;
+
+procedure TfrmConfig.FormCreate(Sender: TObject);
+begin
+
+  TabSheet1.TabVisible := false;
+  TabSheet2.TabVisible := false;
+  RzTabControl1.TabIndex := 0;
+  PageControl1.ActivePageIndex := 0;
+end;
+
+
+
+procedure TfrmConfig.Init;
+begin
+  //服务器地址
+  edtHost.Text :=  GlobalConfig.HostUrl;
+  //开机启动
+  checkAutoStart.Checked := GlobalConfig.Autostart ;
+  //自动登录
+  checkAutoLogin.Checked := GlobalConfig.Autologin ;
+  //允许断网模式
+  checkAllowOffline.Checked := GlobalConfig.AllowOffline;
+end;
+
+procedure TfrmConfig.RzTabControl1Change(Sender: TObject);
+begin
+  PageControl1.ActivePageIndex := RzTabControl1.TabIndex;
+end;
+
+procedure TfrmConfig.SetAutoStart(AutoStart: boolean);
+var 
+  Reg:TRegistry; //首先定义一个TRegistry类型的变量Reg
+begin
+  Reg:=TRegistry.Create;
+  try //创建一个新键
+    Reg.RootKey:= HKEY_LOCAL_MACHINE; //将根键设置为HKEY_LOCAL_MACHINE
+    Reg.OpenKey('Software\Microsoft\Windows\CurrentVersion\Run',true);//打开一个键
+    if AutoStart then
+    begin
+      Reg.WriteString('RsLogin',ExpandFileName(ParamStr(0))); //在Reg这个键中写入数据名称和数据数值
+    end else begin
+      reg.DeleteValue('RsLogin');
+    end;
+    Reg.CloseKey; //关闭键
+  finally
+    Reg.Free;
+  end;
+end;
+
+end.

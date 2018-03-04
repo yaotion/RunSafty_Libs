@@ -1,0 +1,24 @@
+unit RsUILoginDemo;
+
+interface
+
+uses
+  Windows, Messages, SysUtils, Variants, Classes, Graphics, Controls, Forms,
+  Dialogs;
+
+type
+  TfrmUILoginDemo = class(TForm)
+  private
+    { Private declarations }
+  public
+    { Public declarations }
+  end;
+
+var
+  frmUILoginDemo: TfrmUILoginDemo;
+
+implementation
+
+{$R *.dfm}
+
+end.

@@ -1,0 +1,326 @@
+unit uWebApiCollection;
+
+interface
+uses
+  classes,
+  StrUtils,
+  SysUtils,
+  Contnrs,
+  superobject,
+  uJsonSerialize,
+  uBaseWebInterface,
+  uHttpWebAPI,
+  uLCDrink,
+  uLCDutyUser,
+  uLCTrainPlan,
+  uLCTrainmanMgr,
+  uLCBeginwork,
+  uLCNameBoard,
+  uLCNameBoardEx,
+  uLCWorkFlowAPI,
+
+  uLCEndwork,
+  uLCDict_TrainmanJiaoLu;
+
+type
+
+  //轮乘名牌所用地点
+  TNPPlace = class(TPersistent)
+  private
+    m_ID: string;
+    m_Name: string;
+  published
+    property ID: string read m_ID write m_ID;
+    property Name: string read m_Name write m_Name;
+  end;
+
+
+  //地点列表
+  TNPPlaceList = class(TSerialObjectList)
+  protected
+    function GetItem(Index: Integer): TNPPlace;
+    procedure SetItem(Index: Integer; AObject: TNPPlace);
+  public
+    function GetSerialClass: TPersistentClass;override;
+    property Items[Index: Integer]: TNPPlace read GetItem write SetItem; default;
+  end;
+
+
+  //名牌交路
+  TNPJl = class(TSerialPersistent)
+  public
+    constructor Create();override;
+    destructor Destroy;override;
+  private
+    m_JlName: string;
+    m_JlGUID: string;
+    m_JlType: integer;
+    m_PlaceList: TNPPlaceList;
+  published
+    property JlName: string read m_JlName write m_JlName;
+    property JlGUID: string read m_JlGUID write m_JlGUID;
+    property JlType: integer read m_JlType write m_JlType;
+    property PlaceList: TNPPlaceList read m_PlaceList;
+  end;
+
+  //名牌交路列表
+  TNPJlList = class(TSerialObjectList)
+  protected
+    function GetItem(Index: Integer): TNPJl;
+    procedure SetItem(Index: Integer; AObject: TNPJl);
+  public
+    function GetSerialClass: TPersistentClass;override;
+    property Items[Index: Integer]: TNPJl read GetItem write SetItem; default;
+  end;
+
+
+  //名牌交路获取接口
+  TLCNPTmJlApi = class(TWepApiBase)
+  public
+    procedure Query(const SiteNumber: string;JlList: TNPJlList);
+    procedure QueryTest(const SiteNumber: string;JlList: TNPJlList);
+  end;
+
+
+
+  
+  TWebApiCollection = class
+  public
+    constructor Create(APIUtils: TWebAPIUtils);
+    destructor Destroy;override;
+  private
+    m_LCDrink: TRsLCDrink;
+    m_LCDutyUser: TRsLCDutyUser;
+    m_LCTrainPlan: TRsLCTrainPlan;
+    m_LCTrainmanMgr: TRsLCTrainmanMgr;
+    m_LCNameBoard:TRsLCNameBoard;
+    m_LCNameBoardEx: TRsLCNameBoardEx;
+    m_LCTMJl: TRsLCTrainmanJiaolu;
+    m_LCNPTmJlApi: TLCNPTmJlApi;
+    m_LCBoardTrainman: TRsLCBoardTrainman;
+    m_LCNamedGroup : TRsLCNamedGroup;
+    m_LCBeginwork : TLCBeginwork;
+  public
+    procedure SetConnConfig(ConnConfig: RInterConnConfig);
+    property LCDrink: TRsLCDrink read m_LCDrink;
+    property LCDutyUser: TRsLCDutyUser read m_LCDutyUser;
+    property LCTrainPlan: TRsLCTrainPlan read m_LCTrainPlan;
+    property LCTrainmanMgr: TRsLCTrainmanMgr read m_LCTrainmanMgr;
+    property LCNameBoard: TRsLCNameBoard read m_LCNameBoard;
+    property LCNameBoardEx: TRsLCNameBoardEx read m_LCNameBoardEx;
+    property LCTMJl: TRsLCTrainmanJiaolu read m_LCTMJl;
+    property LCNPTmJlApi: TLCNPTmJlApi read m_LCNPTmJlApi;
+    property LCBoardTrainman : TRsLCBoardTrainman  read m_LCBoardTrainman;
+    property LCNamedGroup : TRsLCNamedGroup read m_LCNamedGroup;
+    property LCBeginwork : TLCBeginwork read m_LCBeginwork;
+  end;
+function LCWebAPI: TWebApiCollection;
+
+implementation
+uses
+  uGlobal, RsGlobal_TLB;
+var
+  _LCWebAPI: TWebApiCollection;
+
+
+function GetURLHost(url: string): string;
+var
+  nIndex: integer;
+begin
+  url := LowerCase(Trim(url));
+  nIndex := Pos('http://',url);
+  if nIndex > 0 then
+  begin
+    Result := Copy(url,nIndex + 7,Length(url) - nIndex - 6);
+
+    nIndex := Pos(':',Result);
+    if nIndex > 0 then
+    begin
+      Result := Copy(Result,1,nIndex - 1 );
+    end;
+  end
+  else
+    Result := '';
+end;
+
+
+function GetUrlPort(url: string): integer;
+var
+  nIndex: integer;
+begin
+  url := LowerCase(Trim(url));
+  nIndex := Pos('http://',url);
+  if nIndex > 0 then
+  begin
+    url := Copy(url,nIndex + 7,Length(url) - nIndex - 6);
+    nIndex := Pos(':',url);
+    if nIndex > 0 then
+    begin
+      url := Copy(url,nIndex + 1,length(url) - nIndex);
+      nIndex := Pos('/',url);
+      if nIndex > 0 then
+        Result := StrToIntDef(LeftStr(url,nIndex - 1),80)
+      else
+        Result := StrToIntDef(url,80);
+    end
+    else
+      Result := 80;
+
+  end
+  else
+    Result := 80;
+end;
+
+function LCWebAPI: TWebApiCollection;
+var
+  ConnConfig: RInterConnConfig;
+begin
+  if not Assigned(_LCWebAPI) then
+  begin
+    _LCWebAPI := TWebApiCollection.Create(g_WebAPIUtils);
+    ConnConfig.URL := GlobalDM.WebAPI.URL;
+    ConnConfig.ClientID := GlobalDM.Site.Number;
+    ConnConfig.SiteID := GlobalDM.Site.ID;
+    _LCWebAPI.SetConnConfig(ConnConfig);
+  end;
+
+  Result := _LCWebAPI;
+end;
+{ TLCWebAPI }
+
+constructor TWebApiCollection.Create(APIUtils: TWebAPIUtils);
+begin
+  m_LCDrink := TRsLCDrink.Create(APIUtils);
+  m_LCDutyUser := TRsLCDutyUser.Create(APIUtils);
+  m_LCTrainPlan := TRsLCTrainPlan.Create('','','');
+  m_LCTrainmanMgr := TRsLCTrainmanMgr.Create(APIUtils);
+  m_LCNameBoard:= TRsLCNameBoard.Create('','','');
+  m_LCNameBoardEx := TRsLCNameBoardEx.Create(APIUtils);
+  m_LCTMJl := TRsLCTrainmanJiaolu.Create('','','');
+  m_LCNPTmJlApi := TLCNPTmJlApi.Create(APIUtils);
+  m_LCBoardTrainman:= TRsLCBoardTrainman.Create(APIUtils);
+  m_LCNamedGroup := TRsLCNamedGroup.Create(APIUtils);
+end;
+
+destructor TWebApiCollection.Destroy;
+begin
+  m_LCDrink.Free;
+  m_LCDutyUser.Free;
+  m_LCTrainPlan.Free;
+  m_LCTrainmanMgr.Free;
+  m_LCNameBoardEx.Free;
+  m_LCTMJl.Free;
+  m_LCNameBoard.Free;
+  m_LCNPTmJlApi.Free;
+  m_LCBoardTrainman.Free;
+  m_LCNamedGroup.Free;
+  inherited;
+end;
+
+procedure TWebApiCollection.SetConnConfig(ConnConfig: RInterConnConfig);
+begin
+  m_LCTrainPlan.SetConnConfig(ConnConfig);
+  m_LCTMJl.SetConnConfig(ConnConfig);
+  m_LCNameBoard.SetConnConfig(ConnConfig);
+end;
+
+
+function TNPJlList.GetItem(Index: Integer): TNPJl;
+begin
+  result := TNPJl(inherited GetItem(Index));
+end;
+function TNPJlList.GetSerialClass: TPersistentClass;
+begin
+  Result := TNPJl;
+end;
+
+procedure TNPJlList.SetItem(Index: Integer; AObject: TNPJl);
+begin
+  Inherited SetItem(Index,AObject);
+end;
+
+function TNPPlaceList.GetItem(Index: Integer): TNPPlace;
+begin
+  result := TNPPlace(inherited GetItem(Index));
+end;
+function TNPPlaceList.GetSerialClass: TPersistentClass;
+begin
+  Result := TNPPlace;
+end;
+
+procedure TNPPlaceList.SetItem(Index: Integer; AObject: TNPPlace);
+begin
+  Inherited SetItem(Index,AObject);
+end;
+{ TNPJl }
+
+constructor TNPJl.Create;
+begin
+  inherited;
+  m_PlaceList := TNPPlaceList.Create;
+end;
+
+destructor TNPJl.Destroy;
+begin
+  m_PlaceList.Free;
+  inherited;
+end;
+
+{ TLCNPTmJlApi }
+
+procedure TLCNPTmJlApi.Query(const SiteNumber: string;JlList: TNPJlList);
+var
+  strOutputData,strResultText : String;
+  JSON : ISuperObject;
+begin
+  JSON := SO;
+  JSON.S['SiteNumber'] := SiteNumber;
+  strOutputData := m_WebAPIUtils.Post('TF.Runsafty.BoardTrainman.Plan.Get',json.AsString);
+  if m_WebAPIUtils.CheckPostSuccess(strOutputData,strResultText) = false then
+  begin
+    Raise Exception.Create(strResultText);
+  end;
+
+  JSON := m_WebAPIUtils.GetHttpDataJson(strOutputData);
+
+  TJsonSerialize.DeSerialize(JSON,JlList);
+end;
+
+procedure TLCNPTmJlApi.QueryTest(const SiteNumber: string; JlList: TNPJlList);
+var
+  JSON,jl,place: ISuperObject;
+begin
+  //2 记名式  3轮乘  4包乘
+  JSON := SO('[]');
+  jl := SO;
+  jl.S['JlName'] := '交路1';
+  jl.S['JlGUID'] := '交路ID1';
+  jl.I['JlType'] := 3;
+  place := SO('[]');
+  place.AsArray.Add(so('{"ID":"PlaceID1","Name":"PlaceName1"}'));
+  place.AsArray.Add(so('{"ID":"PlaceID2","Name":"PlaceName2"}'));
+  jl.O['PlaceList'] := place;
+  JSON.AsArray.Add(jl);
+
+  jl := SO;
+  jl.S['JlName'] := '交路2';
+  jl.S['JlGUID'] := '交路ID2';
+  jl.I['JlType'] := 2;
+  JSON.AsArray.Add(jl);
+
+  jl := SO;
+  jl.S['JlName'] := '交路3';
+  jl.S['JlGUID'] := '交路ID3';
+  jl.I['JlType'] := 4;
+  JSON.AsArray.Add(jl);
+
+  
+  TJsonSerialize.DeSerialize(JSON,JlList);
+end;
+
+initialization
+finalization
+  if Assigned(_LCWebAPI) then
+    FreeAndNil(_LCWebAPI);
+end.
+

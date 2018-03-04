@@ -1,0 +1,8 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<BorlandProject>
+	<Transactions>
+    <Transaction>2016-06-21 14:19:53.911.bdsproj,C:\Users\Administrator.XZ-20140210GASR\Documents\Borland Studio Projects\Project1.bdsproj=E:\机务运用安全管理系统\02_开发\01_源代码\基线源码\客户端通用动态库\摄像头Com模块\RsCameraLib.bdsproj</Transaction>
+    <Transaction>2016-06-21 14:20:55.319.pas,E:\机务运用安全管理系统\02_开发\01_源代码\基线源码\客户端通用动态库\摄像头Com模块\Unit1.pas=E:\机务运用安全管理系统\02_开发\01_源代码\基线源码\客户端通用动态库\摄像头Com模块\uRsCamera_Impl.pas</Transaction>
+    <Transaction>2016-06-22 08:39:44.708.pas,E:\机务运用安全管理系统\02_开发\01_源代码\基线源码\客户端通用动态库\类库调用Demo\摄像头实例\uRsCameraObject.pas=</Transaction>
+  </Transactions>
+</BorlandProject>

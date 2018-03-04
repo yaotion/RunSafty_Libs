@@ -1,0 +1,21 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<BorlandProject>
+	<Transactions>
+    <Transaction>2016-02-02 17:17:28.613.bdsproj,D:\用户目录\Documents\Borland Studio Projects\Project1.bdsproj=D:\工作\机务运用安全管理系统\02_开发\01_源代码\基线源码\接口翻译\模块\基础模块\CameraCtl\src\TFRsCameraCtl.bdsproj</Transaction>
+    <Transaction>2016-02-02 17:17:38.977.pas,D:\工作\机务运用安全管理系统\02_开发\01_源代码\基线源码\接口翻译\模块\基础模块\CameraCtl\src\Unit3.pas=D:\工作\机务运用安全管理系统\02_开发\01_源代码\基线源码\接口翻译\模块\基础模块\CameraCtl\src\uLogic.pas</Transaction>
+    <Transaction>2016-02-02 17:18:00.481.pas,D:\工作\机务运用安全管理系统\02_开发\01_源代码\基线源码\接口翻译\模块\基础模块\CameraCtl\src\Unit3.pas=D:\工作\机务运用安全管理系统\02_开发\01_源代码\基线源码\接口翻译\模块\libs\uLib_CameraCtl.pas</Transaction>
+    <Transaction>2016-02-02 18:34:10.539.pas,D:\工作\机务运用安全管理系统\02_开发\01_源代码\基线源码\接口翻译\模块\基础模块\CameraCtl\src\Unit3.pas=D:\工作\机务运用安全管理系统\02_开发\01_源代码\基线源码\接口翻译\模块\基础模块\CameraCtl\src\uContainer.pas</Transaction>
+    <Transaction>2016-02-02 18:34:10.539.dfm,D:\工作\机务运用安全管理系统\02_开发\01_源代码\基线源码\接口翻译\模块\基础模块\CameraCtl\src\Unit3.dfm=D:\工作\机务运用安全管理系统\02_开发\01_源代码\基线源码\接口翻译\模块\基础模块\CameraCtl\src\uContainer.dfm</Transaction>
+    <Transaction>2016/02/24 09:15:38.215.pas,C:\Users\Administrator\Desktop\模块\libs\uLib_Plugin.pas=C:\Users\Administrator\Desktop\模块\libs\uRsLibClass.pas</Transaction>
+    <Transaction>2016/02/25 13:50:23.015.bdsproj,C:\Users\Administrator\Desktop\运安类库封装\摄像头模块\Source\TFRsCameraCtl.bdsproj=C:\Users\Administrator\Desktop\运安类库封装\摄像头模块\Source\CameraLib.bdsproj</Transaction>
+    <Transaction>2016/02/25 13:51:20.456.pas,C:\Users\Administrator\Desktop\运安类库封装\摄像头模块\Source\uLogic.pas=C:\Users\Administrator\Desktop\运安类库封装\摄像头模块\Source\uRsCameraLibImpl.pas</Transaction>
+    <Transaction>2016/02/25 13:53:54.045.pas,C:\Users\Administrator\Desktop\运安类库封装\摄像头模块\Source\uLib_CameraCtl.pas=C:\Users\Administrator\Desktop\运安类库封装\摄像头模块\Source\uRsCameraDef.pas</Transaction>
+    <Transaction>2016/02/25 13:54:21.184.pas,C:\Users\Administrator\Desktop\运安类库封装\摄像头模块\Source\uLib_Miscellaneous.pas=</Transaction>
+    <Transaction>2016/02/25 14:01:52.396.pas,C:\Users\Administrator\Desktop\运安类库封装\摄像头模块\Source\uRsCameraDef.pas=C:\Users\Administrator\Desktop\运安类库封装\摄像头模块\Source\uRsCameraLibDef.pas</Transaction>
+    <Transaction>2016/02/25 15:39:47.614.bdsproj,C:\Users\Administrator\Desktop\运安类库封装\摄像头模块\Source\CameraLib.bdsproj=C:\Users\Administrator\Desktop\运安类库封装\摄像头模块\Source\RsCameraLib.bdsproj</Transaction>
+    <Transaction>2016/03/01 10:08:13.547.pas,C:\Users\Administrator\Desktop\运安类库封装\摄像头模块\Source\uContainer.pas=</Transaction>
+    <Transaction>2016/03/01 10:08:13.603.dfm,C:\Users\Administrator\Desktop\运安类库封装\摄像头模块\Source\uContainer.dfm=</Transaction>
+    <Transaction>2016/03/02 12:54:24.896.pas,C:\Users\Administrator\Desktop\运安类库封装\摄像头模块\Source\uRsCameraLibDef.pas=C:\Users\Administrator\Desktop\运安类库封装\摄像头模块\Source\uRsCameraLib.pas</Transaction>
+    <Transaction>2016/03/02 12:54:33.065.pas,C:\Users\Administrator\Desktop\运安类库封装\摄像头模块\Source\uRsCameraLibImpl.pas=C:\Users\Administrator\Desktop\运安类库封装\摄像头模块\Source\uRsCameraImpl.pas</Transaction>
+  </Transactions>
+</BorlandProject>

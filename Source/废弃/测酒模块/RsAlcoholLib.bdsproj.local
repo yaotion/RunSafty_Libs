@@ -1,0 +1,31 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<BorlandProject>
+	<Transactions>
+    <Transaction>2016-02-02 09:30:29.015.bdsproj,D:\用户目录\Documents\Borland Studio Projects\Project1.bdsproj=D:\工作\机务运用安全管理系统\02_开发\01_源代码\基线源码\接口翻译\模块\基础模块\TestAlcoholCtl\src\RsAlcoholTestCtl.bdsproj</Transaction>
+    <Transaction>2016-02-02 09:34:43.273.pas,D:\工作\机务运用安全管理系统\02_开发\01_源代码\基线源码\接口翻译\模块\基础模块\TestAlcoholCtl\src\Unit3.pas=D:\工作\机务运用安全管理系统\02_开发\01_源代码\基线源码\接口翻译\模块\基础模块\TestAlcoholCtl\src\uLogic.pas</Transaction>
+    <Transaction>2016-02-02 09:35:28.252.pas,D:\工作\机务运用安全管理系统\02_开发\01_源代码\基线源码\接口翻译\模块\基础模块\TestAlcoholCtl\src\Unit3.pas=D:\工作\机务运用安全管理系统\02_开发\01_源代码\基线源码\接口翻译\模块\libs\uAlcoholLib.pas</Transaction>
+    <Transaction>2016-02-02 09:44:04.179.bdsproj,D:\工作\机务运用安全管理系统\02_开发\01_源代码\基线源码\接口翻译\模块\基础模块\TestAlcoholCtl\src\RsAlcoholTestCtl.bdsproj=D:\工作\机务运用安全管理系统\02_开发\01_源代码\基线源码\接口翻译\模块\基础模块\TestAlcoholCtl\src\RsAlcoholCtl.bdsproj</Transaction>
+    <Transaction>2016-02-02 13:53:52.988.bdsproj,D:\工作\机务运用安全管理系统\02_开发\01_源代码\基线源码\接口翻译\模块\基础模块\AlcoholCtl\src\RsAlcoholCtl.bdsproj=D:\工作\机务运用安全管理系统\02_开发\01_源代码\基线源码\接口翻译\模块\基础模块\AlcoholCtl\src\TFRsAlcoholCtl.bdsproj</Transaction>
+    <Transaction>2016-02-02 14:28:01.850.pas,D:\工作\机务运用安全管理系统\02_开发\01_源代码\基线源码\接口翻译\模块\libs\uAlcoholLib.pas=D:\工作\机务运用安全管理系统\02_开发\01_源代码\基线源码\接口翻译\模块\libs\uLib_Alcohol.pas</Transaction>
+    <Transaction>2016-02-02 14:28:12.037.pas,D:\工作\机务运用安全管理系统\02_开发\01_源代码\基线源码\接口翻译\模块\libs\uPluginLib.pas=D:\工作\机务运用安全管理系统\02_开发\01_源代码\基线源码\接口翻译\模块\libs\uLib_Plugin.pas</Transaction>
+    <Transaction>2016-02-02 14:33:57.050.pas,D:\工作\机务运用安全管理系统\02_开发\01_源代码\基线源码\接口翻译\模块\基础模块\AlcoholCtl\src\Unit3.pas=D:\工作\机务运用安全管理系统\02_开发\01_源代码\基线源码\接口翻译\模块\libs\uVariantsDict.pas</Transaction>
+    <Transaction>2016-02-02 15:04:27.803.pas,D:\工作\机务运用安全管理系统\02_开发\01_源代码\基线源码\接口翻译\模块\libs\uVariantsDict.pas=</Transaction>
+    <Transaction>2016-02-15 13:47:21.702.pas,D:\工作\机务运用安全管理系统\02_开发\01_源代码\基线源码\接口翻译\模块\基础模块\AlcoholCtl\src\Unit3.pas=D:\工作\机务运用安全管理系统\02_开发\01_源代码\基线源码\接口翻译\模块\基础模块\AlcoholCtl\src\uContainer.pas</Transaction>
+    <Transaction>2016-02-15 13:47:21.702.dfm,D:\工作\机务运用安全管理系统\02_开发\01_源代码\基线源码\接口翻译\模块\基础模块\AlcoholCtl\src\Unit3.dfm=D:\工作\机务运用安全管理系统\02_开发\01_源代码\基线源码\接口翻译\模块\基础模块\AlcoholCtl\src\uContainer.dfm</Transaction>
+    <Transaction>2016/02/24 09:15:38.213.pas,C:\Users\Administrator\Desktop\模块\libs\uLib_Plugin.pas=C:\Users\Administrator\Desktop\模块\libs\uRsLibClass.pas</Transaction>
+    <Transaction>2016/03/02 14:00:24.741.bdsproj,C:\Users\Administrator\Desktop\运安类库封装\测酒模块\Source\TFRsAlcoholCtl.bdsproj=C:\Users\Administrator\Desktop\运安类库封装\测酒模块\Source\RsAlcoholLib.bdsproj</Transaction>
+    <Transaction>2016/03/02 14:26:40.421.pas,C:\Users\Administrator\Desktop\运安类库封装\测酒模块\Source\uLib_Alcohol.pas=C:\Users\Administrator\Desktop\运安类库封装\测酒模块\Source\uRsAlcoholLib.pas</Transaction>
+    <Transaction>2016/03/02 14:28:12.310.pas,C:\Users\Administrator\Desktop\运安类库封装\测酒模块\Source\uLogic.pas=C:\Users\Administrator\Desktop\运安类库封装\测酒模块\Source\uRsAlcoholImpl.pas</Transaction>
+    <Transaction>2016/03/02 14:30:37.837.pas,C:\Users\Administrator\Desktop\运安类库封装\测酒模块\Source\uLLCommonFun.pas=</Transaction>
+    <Transaction>2016/03/02 15:57:12.111.pas,C:\Users\Administrator\Desktop\运安类库封装\测酒模块\Source\uContainer.pas=</Transaction>
+    <Transaction>2016/03/02 15:57:12.112.dfm,C:\Users\Administrator\Desktop\运安类库封装\测酒模块\Source\uContainer.dfm=</Transaction>
+    <Transaction>2016/03/02 17:24:17.168.pas,C:\Users\Administrator\Desktop\运安类库封装\测酒模块\Source\uVariantDict.pas=</Transaction>
+    <Transaction>2016/03/03 16:40:15.462.pas,C:\Users\Administrator\Desktop\运安类库封装\测酒模块\Source\Unit1.pas=C:\Users\Administrator\Desktop\运安类库封装\测酒模块\Source\功能窗体\uFrmAlcoholUI_PC.pas</Transaction>
+    <Transaction>2016/03/03 16:40:15.475.dfm,C:\Users\Administrator\Desktop\运安类库封装\测酒模块\Source\Unit1.dfm=C:\Users\Administrator\Desktop\运安类库封装\测酒模块\Source\功能窗体\uFrmAlcoholUI_PC.dfm</Transaction>
+    <Transaction>2016/03/04 11:15:05.707.pas,C:\Users\Administrator\Desktop\运安类库封装\测酒模块\Source\功能窗体\ufrmTestDrinking.pas=</Transaction>
+    <Transaction>2016/03/04 11:15:05.731.dfm,C:\Users\Administrator\Desktop\运安类库封装\测酒模块\Source\功能窗体\ufrmTestDrinking.dfm=</Transaction>
+    <Transaction>2016/03/04 11:15:17.821.pas,C:\Users\Administrator\Desktop\运安类库封装\测酒模块\Source\功能窗体\ufrmCamer.pas=</Transaction>
+    <Transaction>2016/03/04 11:15:17.821.dfm,C:\Users\Administrator\Desktop\运安类库封装\测酒模块\Source\功能窗体\ufrmCamer.dfm=</Transaction>
+    <Transaction>2016-06-21 17:28:53.772.pas,E:\机务运用安全管理系统\02_开发\01_源代码\基线源码\客户端通用动态库\摄像头模块\uRsCameraLib.pas=</Transaction>
+  </Transactions>
+</BorlandProject>

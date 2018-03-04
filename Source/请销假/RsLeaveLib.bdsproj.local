@@ -1,0 +1,23 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<BorlandProject>
+	<Transactions>
+    <Transaction>2016-11-14 09:31:05.202.bdsproj,C:\Users\Administrator\Documents\Borland Studio Projects\Project1.bdsproj=E:\姚新\畅想\代码\项目\机务运用安全管理系统\02_开发\01_源代码\基线源码\客户端通用动态库\Source\请销假\RsLeaveLib.bdsproj</Transaction>
+    <Transaction>2016-11-14 09:33:47.846.pas,E:\姚新\畅想\代码\项目\机务运用安全管理系统\02_开发\01_源代码\基线源码\客户端通用动态库\Source\请销假\Unit1.pas=E:\姚新\畅想\代码\项目\机务运用安全管理系统\02_开发\01_源代码\基线源码\客户端通用动态库\Source\请销假\RsLeave_Impl.pas</Transaction>
+    <Transaction>2016-11-14 11:00:51.134.pas,E:\姚新\畅想\代码\项目\机务运用安全管理系统\02_开发\01_源代码\基线源码\客户端通用动态库\Source\请销假\功能窗体\销假登记\uFrmBaoChengSelect.pas=</Transaction>
+    <Transaction>2016-11-14 11:00:51.134.dfm,E:\姚新\畅想\代码\项目\机务运用安全管理系统\02_开发\01_源代码\基线源码\客户端通用动态库\Source\请销假\功能窗体\销假登记\uFrmBaoChengSelect.dfm=</Transaction>
+    <Transaction>2016-11-15 12:57:30.448.pas,E:\姚新\畅想\代码\项目\机务运用安全管理系统\02_开发\01_源代码\基线源码\客户端通用动态库\Source\请销假\功能单元\uLCAskLeave.pas=</Transaction>
+    <Transaction>2016-11-15 12:57:32.675.pas,E:\姚新\畅想\代码\项目\机务运用安全管理系统\02_开发\01_源代码\基线源码\客户端通用动态库\Source\请销假\功能单元\uLeaveListInfo.pas=</Transaction>
+    <Transaction>2016-11-15 14:58:01.010.pas,E:\姚新\畅想\代码\项目\机务运用安全管理系统\02_开发\01_源代码\基线源码\接口翻译\客户端\Source\功能窗口\通用功能\单人登记\ufrmTrainmanIdentity.pas=</Transaction>
+    <Transaction>2016-11-15 14:58:01.011.dfm,E:\姚新\畅想\代码\项目\机务运用安全管理系统\02_开发\01_源代码\基线源码\接口翻译\客户端\Source\功能窗口\通用功能\单人登记\ufrmTrainmanIdentity.dfm=</Transaction>
+    <Transaction>2016-11-15 15:51:14.759.pas,E:\姚新\畅想\代码\项目\机务运用安全管理系统\02_开发\01_源代码\基线源码\接口翻译\客户端\Source\接口\uLCBaseDict.pas=</Transaction>
+    <Transaction>2016-11-18 16:09:09.877.pas,D:\工作\机务运用安全管理系统\02_开发\01_源代码\基线源码\接口翻译\客户端\Source\功能窗口\电子名牌管理\ufrmTmJlSelect.pas=</Transaction>
+    <Transaction>2016-11-18 16:09:09.877.dfm,D:\工作\机务运用安全管理系统\02_开发\01_源代码\基线源码\接口翻译\客户端\Source\功能窗口\电子名牌管理\ufrmTmJlSelect.dfm=</Transaction>
+    <Transaction>2016-11-18 16:09:26.800.pas,D:\工作\机务运用安全管理系统\02_开发\01_源代码\基线源码\客户端\Source\功能窗口\进度对话框\uFrmProgressEx.pas=</Transaction>
+    <Transaction>2016-11-18 16:09:26.801.dfm,D:\工作\机务运用安全管理系统\02_开发\01_源代码\基线源码\客户端\Source\功能窗口\进度对话框\uFrmProgressEx.dfm=</Transaction>
+    <Transaction>2016-11-18 16:09:46.909.pas,D:\工作\机务运用安全管理系统\02_开发\01_源代码\基线源码\客户端\Source\功能窗口\通用功能\文本输入\ufrmTextInput.pas=</Transaction>
+    <Transaction>2016-11-18 16:09:46.909.dfm,D:\工作\机务运用安全管理系统\02_开发\01_源代码\基线源码\客户端\Source\功能窗口\通用功能\文本输入\ufrmTextInput.dfm=</Transaction>
+    <Transaction>2016-11-18 16:15:42.545.pas,D:\工作\机务运用安全管理系统\02_开发\01_源代码\基线源码\客户端通用动态库\Source\请销假\功能窗体\请假类型管理\ufrmTmJlSelect.pas=</Transaction>
+    <Transaction>2016-11-18 16:15:42.545.dfm,D:\工作\机务运用安全管理系统\02_开发\01_源代码\基线源码\客户端通用动态库\Source\请销假\功能窗体\请假类型管理\ufrmTmJlSelect.dfm=</Transaction>
+    <Transaction>2016-11-18 17:12:39.285.pas,D:\工作\机务运用安全管理系统\02_开发\01_源代码\基线源码\客户端通用动态库\Source\请销假\引用\RsGlobal_TLB.pas=</Transaction>
+  </Transactions>
+</BorlandProject>

@@ -1,0 +1,9 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<BorlandProject>
+	<Transactions>
+    <Transaction>2016-03-29 13:05:26.750.bdsproj,C:\Users\Administrator\Documents\Borland Studio Projects\Project1.bdsproj=E:\姚新\畅想\代码\项目\机务运用安全管理系统\02_开发\01_源代码\基线源码\客户端通用动态库\MQ操作\RsLibMQ.bdsproj</Transaction>
+    <Transaction>2016-03-29 13:07:08.368.pas,E:\姚新\畅想\代码\项目\机务运用安全管理系统\02_开发\01_源代码\基线源码\客户端通用动态库\MQ操作\Unit1.pas=E:\姚新\畅想\代码\项目\机务运用安全管理系统\02_开发\01_源代码\基线源码\客户端通用动态库\MQ操作\uRsMQImpl.pas</Transaction>
+    <Transaction>2016-03-29 13:07:35.636.pas,E:\姚新\畅想\代码\项目\机务运用安全管理系统\02_开发\01_源代码\基线源码\客户端通用动态库\MQ操作\Unit1.pas=E:\姚新\畅想\代码\项目\机务运用安全管理系统\02_开发\01_源代码\基线源码\客户端通用动态库\MQ操作\uRsMQLib.pas</Transaction>
+    <Transaction>2016-03-29 13:10:57.185.pas,E:\姚新\畅想\代码\项目\机务运用安全管理系统\02_开发\01_源代码\基线源码\客户端通用动态库\MQ操作\uMQUtils.pas=</Transaction>
+  </Transactions>
+</BorlandProject>

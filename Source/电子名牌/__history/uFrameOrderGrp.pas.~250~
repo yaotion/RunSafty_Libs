@@ -1,0 +1,907 @@
+unit uFrameOrderGrp;
+
+interface
+
+uses
+  Windows, Messages, SysUtils, Variants, Classes, Graphics, Controls, Forms,
+  Dialogs, uFrameNamePlate,uTrainmanJiaolu,uScrollView, Menus,uTFSystem,
+  uLCNameBoardEx,uTrainmanView,uOrderGroupView,uWebApiCollection, ExtCtrls,
+  RzPanel,RzTabs,uDrinkExtls,uApparatusCommon,uDrink,uLCBeginwork;
+
+type
+  TGrpMenuActions = class;
+  TTmMenuActions = class;
+
+  TFrameOrderGrp = class(TFrameNamePlate)
+    PopupMenu_Control: TPopupMenu;
+    N1: TMenuItem;
+    PopupMenu_View: TPopupMenu;
+    procedure PopupMenu_ViewPopup(Sender: TObject);
+    procedure N1Click(Sender: TObject);
+    procedure PopupMenu_ControlPopup(Sender: TObject);
+  private
+    { Private declarations }
+    m_GrpMenuActions: TGrpMenuActions;
+    m_TmMenuActions: TTmMenuActions;
+    m_CtrlRest : TRsNPControlRestList;
+    m_bCanEdit : boolean;
+  protected
+    procedure OnDragViewOver(src,dest: TView;var Accept: Boolean);override;
+    procedure OnDropMode(src,dest: TView;X,Y: integer;var Mode: TDropMode);override;
+  public
+    { Public declarations }
+    constructor Create(AOwner: TComponent); override;
+    function Search(Tm: PTm): Boolean;override;
+    function GetCurrentPlaceID : string;
+    procedure RefreshViews();override;
+    procedure ExportPlates(const FileName: string);override;
+    function GetLocalMinCtrlMinutes() : integer;
+    property CanEdit : boolean  read m_bCanEdit;
+  end;
+
+
+  TShareActions = class(TComponent)
+  public
+    constructor NewCreate(Frame: TFrameOrderGrp);
+    destructor Destroy;override;
+  protected
+    m_Frame: TFrameOrderGrp;
+
+    m_InputJl: TRsLCBoardInputJL;
+
+    m_InputDuty: TRsLCBoardInputDuty;
+  public
+    procedure RefreshGrpView(View: TView);
+    procedure CreateMenus(View: TView;PopMenu: TPopupMenu);virtual;
+    procedure ViewPlan(Sender: TObject);
+    procedure RemovePlan(Sender: TObject);
+  end;
+
+  TGrpMenuActions = class(TShareActions)
+  public
+    function FirstPlanIndex(): integer;
+    procedure CreateMenus2(View: TView;PopMenu: TPopupMenu);
+    procedure CreateMenus(View: TView;PopMenu: TPopupMenu);override;
+    procedure AddGrp(Sender: TObject);
+    procedure DelGrp(Sender: TObject);
+    procedure Exchange(Src,Dest: TOrderGroupView);
+    procedure Insert(View,Dest: TOrderGroupView;Mode: TDropMode);
+    procedure ChangePlace(Sender: TObject);
+    procedure GrpTx(Sender: TObject);
+
+    procedure EndPlan(Sender:TObject);
+  end;
+
+  TTmMenuActions = class(TShareActions)
+  public
+    procedure CreateMenus2(View: TView;PopMenu: TPopupMenu);
+    procedure CreateMenus(View: TView;PopMenu: TPopupMenu);override;
+    procedure SetTM(Sender: TObject);
+    procedure ViewTM(Sender: TObject);
+    procedure RemoveTm(Sender: TObject);
+    procedure Exchange(Src,Dest: TTrainmanView);
+    procedure AskLeave(Sender: TObject);
+    procedure ImportCQDrink(Sender: TObject);
+    procedure ImportTQDrink(Sender: TObject);
+  end;
+
+implementation
+
+uses
+  uTrainman,
+  uDialogsLib,
+  uSaftyEnum,
+  uFrmAddUser,
+  DateUtils,
+  uFrmPlanInfo,
+  uTrainPlan,
+  uGlobal,
+  uValidator,
+  uNamePlatesExporter,
+  uFrmDrinkInfo,uFrmTrainmanDetail;
+
+
+
+{$R *.dfm}
+
+{ TFrameOrderGrp }
+
+constructor TFrameOrderGrp.Create(AOwner: TComponent);
+begin
+  inherited;
+  m_ScrollView.PopupMenu := PopupMenu_Control;
+  m_ScrollView.ViewPopMenue := PopupMenu_View;
+  m_GrpMenuActions := TGrpMenuActions.NewCreate(self);
+  m_TmMenuActions := TTmMenuActions.NewCreate(self);
+  SetLength(m_CtrlRest,0);
+end;
+
+procedure TFrameOrderGrp.ExportPlates(const FileName: string);
+var
+  I: Integer;
+  OrderGroup: RRsOrderGroup;
+  NpLst: TNpOrderList;
+  NpOrder: TNpOrder;
+begin
+  NpLst := TNpOrderList.Create;
+  try
+    for I := 0 to m_ScrollView.Views.Count - 1 do
+    begin
+      OrderGroup := (m_ScrollView.Views[i] as TOrderGroupView).OrderGroup;
+
+      NpOrder := TNpOrder.Create;
+      NpLst.Add(NpOrder);
+
+      NpOrder.Grp.Tm1.Number := OrderGroup.Group.Trainman1.strTrainmanNumber;
+      NpOrder.Grp.Tm1.Name := OrderGroup.Group.Trainman1.strTrainmanName;
+      NpOrder.Grp.Tm2.Number := OrderGroup.Group.Trainman2.strTrainmanNumber;
+      NpOrder.Grp.Tm2.Name := OrderGroup.Group.Trainman2.strTrainmanName;
+      NpOrder.Grp.Tm3.Number := OrderGroup.Group.Trainman3.strTrainmanNumber;
+      NpOrder.Grp.Tm3.Name := OrderGroup.Group.Trainman3.strTrainmanName;
+    end;
+    
+    TNamePlatesExport.ExportPlates(FileName,TmJl.Name,NpLst);
+  finally
+    NpLst.Free;
+  end;
+end;
+
+function TFrameOrderGrp.GetCurrentPlaceID: string;
+var
+  i: Integer;
+begin
+  result := '';
+  for i := 0 to TmJl.PlaceLst.Count - 1 do
+  begin
+    if TRzTabSheet(Parent).Caption = TmJl.PlaceLst.PlaceName[i] then
+    begin
+      result := TmJl.PlaceLst.PlaceID[i];
+    end;
+  end;
+end;
+
+function TFrameOrderGrp.GetLocalMinCtrlMinutes: integer;
+var
+  i: Integer;
+begin
+  result := 0;
+  for i := 0 to length(m_CtrlRest) - 1 do
+  begin
+    if (m_CtrlRest[i].LocalPlace = 1) and (m_CtrlRest[i].ControlLocalRest = 1) then
+    begin
+      result := m_CtrlRest[i].MinLocalRestMinutes;
+      exit;
+    end;
+  end;
+end;
+
+procedure TFrameOrderGrp.N1Click(Sender: TObject);
+begin
+  m_GrpMenuActions.AddGrp(nil);
+end;
+
+procedure TFrameOrderGrp.OnDragViewOver(src, dest: TView; var Accept: Boolean);
+begin
+  accept := false;
+  if not m_bCanEdit then
+    exit;
+  Accept := src.ClassType = dest.ClassType;
+end;
+
+procedure TFrameOrderGrp.OnDropMode(src, dest: TView; X, Y: integer;
+  var Mode: TDropMode);
+var
+  pt: TPoint;
+begin
+  Mode := dmCancel;
+  if not m_bCanEdit then
+    exit;
+  if src is TTrainmanView then
+  begin
+    Mode := dmExchange;
+    m_TmMenuActions.Exchange(src as TTrainmanView,dest as TTrainmanView);
+  end
+  else
+  if src is TOrderGroupView then
+  begin
+    GetCursorPos(pt);
+    Mode := m_ScrollView.DropModePopMenu.Popup(pt.X,pt.Y);
+    case Mode of
+      dmInsertLeft,dmInsertRight:
+        m_GrpMenuActions.Insert(src as TOrderGroupView, dest as TOrderGroupView,Mode);
+        
+      dmExchange:
+        m_GrpMenuActions.Exchange(src as TOrderGroupView,dest as TOrderGroupView);
+    end;
+  end
+  else
+    Mode := dmCancel;
+end;
+
+
+procedure TFrameOrderGrp.PopupMenu_ControlPopup(Sender: TObject);
+begin
+  N1.Enabled := false;
+  if m_bCanEdit then
+    N1.Enabled := true;
+
+end;
+
+procedure TFrameOrderGrp.PopupMenu_ViewPopup(Sender: TObject);
+begin
+  if m_ScrollView.PopupView is TTrainmanView then
+    m_TmMenuActions.CreateMenus(m_ScrollView.PopupView,PopupMenu_View)
+  else
+    m_GrpMenuActions.CreateMenus(m_ScrollView.PopupView,PopupMenu_View);
+end;
+
+procedure TFrameOrderGrp.RefreshViews;
+var
+  GrpArray: TRsOrderGroupArray;
+  Err: string;
+  View: TOrderGroupView;
+  I: Integer;
+  placeID : string;
+  minCtrlRestMinute : integer;
+begin
+  m_bCanEdit := LCWebAPI.LCBoardTrainman.CanEditPlate(GlobalDM.User.Number);
+  placeID := GetCurrentPlaceID;
+  if not LCWebAPI.LCNameBoard.GetOrderGroup(m_TmJl.ID,placeID,'',GrpArray,Err) then
+  begin
+    TMessageBox.Err(Err);
+    Exit;
+  end;
+  LCWebAPI.LCNameBoardEx.Trainman.GetControlRests(m_TmJl.ID,placeID,m_CtrlRest);
+  minCtrlRestMinute := GetLocalMinCtrlMinutes;
+  m_ScrollView.Views.BeginUpdate;
+  try
+    m_ScrollView.Views.Clear;
+    for i := 0 to length(GrpArray) - 1 do
+    begin
+      GrpArray[i].nOrder := 0;
+      View := TOrderGroupView.Create();
+      VIEW.MinRestMinutes := minCtrlRestMinute;
+      View.OrderGroup := GrpArray[i];
+
+      m_ScrollView.Views.AddView(View);
+    end;
+  finally
+    m_ScrollView.Views.EndUpdate;
+  end;
+
+end;
+
+
+function TFrameOrderGrp.Search(Tm: PTm): Boolean;
+var
+  i,j: Integer;
+begin
+  Result := False;
+  for i := 0 to m_ScrollView.Views.Count - 1 do
+  begin
+    if m_ScrollView.Views[i] is TOrderGroupView then
+    begin
+      for j := 0 to m_ScrollView.Views[i].Items.Count - 1 do
+      begin
+        if (m_ScrollView.Views[i].Items[j] as TTrainmanView).Trainman.strTrainmanNumber = Tm.strTrainmanNumber then
+        begin
+          Result := True;
+          m_ScrollView.MakeVisible(m_ScrollView.Views[i],true);
+          Exit;
+        end;
+      end;
+    end;
+  end;
+
+end;
+
+{ TShareActions }
+destructor TShareActions.Destroy;
+begin
+  m_InputJl.Free;
+  m_InputDuty.Free;
+  inherited;
+end;
+
+constructor TShareActions.NewCreate(Frame: TFrameOrderGrp);
+begin
+  Inherited Create(Frame);
+  m_InputJl := TRsLCBoardInputJL.Create;
+  m_InputDuty := TRsLCBoardInputDuty.Create;  
+  m_Frame := Frame;
+end;
+
+procedure TShareActions.RefreshGrpView(View: TView);
+var
+  Grp: RRsOrderGroup;
+  nOrder : integer;
+begin
+  if not (View is TOrderGroupView) then raise Exception.Create('View类型错误');
+  nOrder :=  (View as TOrderGroupView).OrderGroup.nOrder;
+  if LCWebAPI.LCNameBoardEx.Order.Group.GetOrderGroup(
+  (View as TOrderGroupView).OrderGroup.Group.strGroupGUID,Grp) then
+  begin
+    grp.nOrder := nOrder;
+    (View as TOrderGroupView).OrderGroup := Grp;
+    View.Invalidate();
+  end;
+end;
+
+procedure TShareActions.RemovePlan(Sender: TObject);
+var
+  GroupView: TOrderGroupView;
+begin
+  GroupView := nil;
+  if m_Frame.m_ScrollView.PopupView is TTrainmanView then
+  begin
+    GroupView := m_Frame.m_ScrollView.PopupView.Parent as TOrderGroupView;
+  end;
+  if m_Frame.m_ScrollView.PopupView is TOrderGroupView then
+  begin
+    GroupView := m_Frame.m_ScrollView.PopupView as TOrderGroupView;
+  end;
+
+  if GroupView <> nil then
+  begin
+    if TNPCommonLogic.RemovePlan(GroupView.OrderGroup.Group.strGroupGUID) then
+      RefreshGrpView(GroupView);
+  end;
+
+end;
+
+procedure TShareActions.CreateMenus(View: TView; PopMenu: TPopupMenu);
+begin
+
+end;
+
+procedure TShareActions.ViewPlan(Sender: TObject);
+var
+  View: TOrderGroupView;
+begin
+  with m_Frame.m_ScrollView do
+  begin
+    if PopupView is TTrainmanView then
+      View := PopupView.Parent as TOrderGroupView
+    else
+      View := PopupView as TOrderGroupView;
+  end;
+
+  TNPCommonLogic.ShowGprPlan(View.OrderGroup.Group.strGroupGUID);
+end;
+
+{ TGrpMenuActions }
+
+procedure TGrpMenuActions.AddGrp(Sender: TObject);
+var
+  AddParam: TRsLCOrderGrpInputParam;
+begin
+  AddParam := TRsLCOrderGrpInputParam.Create;
+  try
+    m_Frame.DoFillParam(AddParam.TrainmanJiaolu,AddParam.DutyUser);
+    AddParam.OrderGUID := NewGUID;
+    AddParam.PlaceID := m_Frame.GetCurrentPlaceID;
+    LCWebAPI.LCNameBoardEx.Order.Group.Add(AddParam);
+    m_Frame.RefreshViews
+  finally
+    AddParam.Free;
+  end;
+end;
+
+procedure TGrpMenuActions.DelGrp(Sender: TObject);
+begin
+  m_Frame.DoFillParam(m_InputJl,m_InputDuty);
+
+  with m_Frame.m_ScrollView do
+  begin
+    with PopupView as TOrderGroupView do
+    begin
+      if TLocalValidator.IsBusy(OrderGroup.Group) then
+      begin
+        TMessageBox.Box(TLocalValidator.Reason);
+        Exit;
+      end;
+
+
+      LCWebAPI.LCNameBoardEx.Order.Group.Delete(
+        m_InputJl,
+        OrderGroup.Group.strGroupGUID,
+        m_InputDuty);
+
+      Views.Remove(PopupView);
+    end;
+  end;
+
+end;
+
+procedure TGrpMenuActions.EndPlan(Sender: TObject);
+var
+  strError :string;
+  strPlanIDs : TStrings;
+begin
+ if not TBox('您确认要终止该名牌值乘的计划吗，此操作仅适合异常情况操作') then
+   exit;
+ with m_Frame.m_ScrollView do
+  begin
+    with PopupView as TOrderGroupView do
+    begin
+      strPlanIDs := TStringList.Create;
+      try
+        strPlanIDs.Add(OrderGroup.Group.strTrainPlanGUID);
+        if not LCWebAPI.LCTrainPlan.CancelTrainPlan(strPlanIDs,GlobalDM.User.ID,true,strError) then
+        begin
+          Box('终止计划操作失败:' + strError);
+        end;
+        m_Frame.RefreshViews;
+      finally
+        strPlanIDs.Free;
+      end;
+    end;
+  end;
+end;
+
+procedure TGrpMenuActions.Exchange(Src, Dest: TOrderGroupView);
+begin
+  m_Frame.DoFillParam(m_InputJl,m_InputDuty);
+  LCWebAPI.LCNameBoardEx.Group.Swap(m_InputJL,m_InputDuty,Src.OrderGroup.Group.strGroupGUID,
+  Dest.OrderGroup.Group.strGroupGUID);
+end;
+
+function TGrpMenuActions.FirstPlanIndex: integer;
+var
+  I: Integer;
+begin
+  with m_Frame.m_ScrollView do
+  begin
+    Result := Views.Count;
+    for I := 0 to Views.Count - 1 do
+    begin
+      if (Views[i] as TOrderGroupView).OrderGroup.Group.GroupState
+      in [tsPlaning,tsRuning] then
+      begin
+        Result := i;
+      end;
+    end;
+  end;
+
+end;
+
+procedure TGrpMenuActions.GrpTx(Sender: TObject);
+var
+  GrpID: string;
+begin
+  m_Frame.DoFillParam(m_InputJl,m_InputDuty);
+  GrpID := (m_Frame.m_ScrollView.PopupView as TOrderGroupView).OrderGroup.Group.strGroupGUID;
+  TNPCommonLogic.GrpTX(m_InputJl,m_InputDuty,GrpID);
+  m_Frame.m_ScrollView.Views.Remove(m_Frame.m_ScrollView.PopupView);
+end;
+
+
+procedure TGrpMenuActions.Insert(View,Dest: TOrderGroupView;Mode: TDropMode);
+var
+  ArriveTime : TDateTime;
+  NextView : TOrderGroupView;
+  Group : RRsOrderGroup;
+  function GetNextView: TOrderGroupView;
+  var
+    index: integer;
+  begin
+    Result := nil;
+    index := Dest.Owner.IndexOf(Dest);
+
+    case Mode of
+      dmInsertLeft:
+        begin
+          Dec(index);
+          if index >= 0 then
+          begin
+            Result := Dest.Owner[index] as TOrderGroupView;
+          end;
+
+        end;
+
+      dmInsertRight:
+        begin
+          Inc(index);
+          if index < Dest.Owner.Count then
+          begin
+            Result := Dest.Owner[index] as TOrderGroupView;
+          end;
+
+        end;
+
+    end;
+  end;
+begin
+  m_Frame.DoFillParam(m_InputJl,m_InputDuty);
+  NextView := GetNextView();
+
+  //没有前一个机组则取目标机组的到达时间的前10分钟
+  ArriveTime :=  DateUtils.IncMinute(Dest.OrderGroup.dtLastArriveTime,-10);
+  
+  //有前一个机组则去两个机组的中间时间 
+  if NextView <> nil then
+  begin
+    ArriveTime := NextView.OrderGroup.dtLastArriveTime +
+      (Dest.OrderGroup.dtLastArriveTime - NextView.OrderGroup.dtLastArriveTime) /2;
+  end;
+
+
+
+  LCWebAPI.LCNameBoardEx.Group.UpdateArriveTime(
+    View.OrderGroup.Group.strGroupGUID,
+    View.OrderGroup.dtLastArriveTime,
+    ArriveTime,
+    m_InputDuty,m_InputJL);
+
+
+    Group := View.OrderGroup;
+    Group.dtLastArriveTime := ArriveTime;
+    View.OrderGroup := Group;
+end;
+
+
+procedure TGrpMenuActions.ChangePlace(Sender: TObject);
+begin
+
+end;
+
+procedure TGrpMenuActions.CreateMenus(View: TView;PopMenu: TPopupMenu);
+begin
+  PopMenu.Items.Clear;
+
+  with View as TOrderGroupView do
+  begin
+    if m_Frame.CanEdit then
+    begin
+      AddMenuItem('添加机组',AddGrp,PopMenu);
+      AddMenuItem('-',nil,PopMenu);
+    end;
+    AddMenuItem('查看计划...',ViewPlan,PopMenu).Enabled :=
+      OrderGroup.Group.GroupState in [tsPlaning,tsRuning];
+    AddMenuItem('-',nil,PopMenu);
+
+    AddMenuItem('删除机组',DelGrp,PopMenu).Enabled :=
+      OrderGroup.Group.GroupState in [tsNormal];
+
+    AddMenuItem('-',nil,PopMenu);
+            
+    AddMenuItem('移除计划',RemovePlan,PopMenu).Enabled :=
+      OrderGroup.Group.GroupState in [tsPlaning];
+    AddMenuItem('-',nil,PopMenu);
+
+    
+    AddMenuItem('异常终止',EndPlan,PopMenu).Enabled :=
+       OrderGroup.Group.GroupState in [tsPlaning,tsRuning];
+  end;
+end;
+
+procedure TGrpMenuActions.CreateMenus2(View: TView; PopMenu: TPopupMenu);
+begin
+  PopMenu.Items.Clear;
+  with View as TOrderGroupView do
+  begin
+    AddMenuItem('添加机组',AddGrp,PopMenu);
+    AddMenuItem('删除机组',DelGrp,PopMenu).Enabled :=
+      not (OrderGroup.Group.GroupState in [tsPlaning,tsRuning]);
+    AddMenuItem('-',nil,PopMenu);
+    AddMenuItem('查看计划...',ViewPlan,PopMenu).Enabled :=
+      OrderGroup.Group.GroupState in [tsPlaning,tsRuning];
+
+    AddMenuItem('移除计划',RemovePlan,PopMenu).Enabled :=
+      OrderGroup.Group.GroupState in [tsPlaning];
+
+    AddMenuItem('-',nil,PopMenu);
+
+    AddMenuItem('修改出勤点...',ChangePlace,PopMenu);
+    AddMenuItem('调休',GrpTx,PopMenu).Enabled :=
+      not (OrderGroup.Group.GroupState in [tsPlaning,tsRuning]);
+  end;
+
+end;
+
+{ TTmMenuActions }
+
+procedure TTmMenuActions.AskLeave(Sender: TObject);
+begin
+  with m_Frame.m_ScrollView.PopupView as TTrainmanView do
+  begin
+    if LeaveLib.Askfor(Trainman.strTrainmanNumber) then
+    begin
+      RefreshGrpView(Parent);
+    end;
+  end;
+end;
+
+procedure TTmMenuActions.CreateMenus(View: TView;PopMenu: TPopupMenu);
+begin
+  PopMenu.Items.Clear;
+  with View.Parent as TOrderGroupView do
+  begin
+    AddMenuItem('人员信息',ViewTM,PopMenu);
+    AddMenuItem('-',nil,PopMenu);
+
+    if m_Frame.CanEdit then
+    begin
+      AddMenuItem('设置人员',SetTM,PopMenu).Enabled :=
+        not (OrderGroup.Group.GroupState in [tsPlaning,tsRuning]);
+      AddMenuItem('-',nil,PopMenu);  
+    end;
+
+    AddMenuItem('导入出勤测酒',ImportCQDrink,PopMenu).Enabled :=
+      OrderGroup.Group.GroupState in [tsPlaning];
+    AddMenuItem('-',nil,PopMenu);
+    AddMenuItem('导入退勤勤测酒',ImportTQDrink,PopMenu).Enabled :=
+      OrderGroup.Group.GroupState in [tsRuning];
+  end;
+end;
+
+
+procedure TTmMenuActions.CreateMenus2(View: TView; PopMenu: TPopupMenu);
+begin
+  PopMenu.Items.Clear;
+
+  with View.Parent as TOrderGroupView do
+  begin
+    AddMenuItem('设置人员',SetTM,PopMenu).Enabled :=
+      not (OrderGroup.Group.GroupState in [tsPlaning,tsRuning]);
+    AddMenuItem('移除人员',RemoveTm,PopMenu).Enabled :=
+      not (OrderGroup.Group.GroupState in [tsPlaning,tsRuning])
+      and ((View as TTrainmanView).Trainman.strTrainmanGUID <> '');
+    AddMenuItem('-',nil,PopMenu);
+    AddMenuItem('查看计划...',ViewPlan,PopMenu).Enabled :=
+      OrderGroup.Group.GroupState in [tsPlaning,tsRuning];
+    AddMenuItem('移除计划',RemovePlan,PopMenu).Enabled :=
+      OrderGroup.Group.GroupState in [tsPlaning];
+    AddMenuItem('-',nil,PopMenu);
+    AddMenuItem('请假',AskLeave,PopMenu).Enabled :=
+      not (OrderGroup.Group.GroupState in [tsPlaning,tsRuning]);
+
+  end;
+
+end;
+
+procedure TTmMenuActions.Exchange(Src, Dest: TTrainmanView);
+var
+  srcGrp, srcTm: string; srcPos: integer;
+  destGrp, destTm: string; destPos: integer;
+begin
+  m_Frame.DoFillParam(m_InputJl,m_InputDuty);
+
+  srcTm := Src.Trainman.strTrainmanGUID;
+
+  srcGrp := (Src.Parent as TOrderGroupView).OrderGroup.Group.strGroupGUID;
+
+  srcPos := Src.Parent.Items.IndexOf(Src) + 1;
+
+
+  destTm := Dest.Trainman.strTrainmanGUID;
+
+  destGrp := (Dest.Parent as TOrderGroupView).OrderGroup.Group.strGroupGUID;
+
+  destPos := Dest.Parent.Items.IndexOf(Dest) + 1;
+
+  LCWebAPI.LCNameBoardEx.Group.ExchangeTm(m_InputJl,m_InputDuty,
+    srcGrp,srcTm,srcPos,
+    destGrp,destTm,destPos);
+
+end;
+procedure TTmMenuActions.ImportCQDrink(Sender: TObject);
+var
+  DrinkQuery: RRsDrinkQuery;
+  tmView: TTrainmanView;
+  groupView : TOrderGroupView;
+  Verify: TRsRegisterFlag;
+  tmPlan,trainmanPlan : RRsTrainmanPlan;
+  Trainman: RRsTrainman;
+  strTrainPlanGUID,strError : string;
+  DrinkInfo: RRsDrinkInfo;
+  TestResult: RTestAlcoholInfo;
+  RDrink: RRsDrink;
+begin
+  if not (m_Frame.m_ScrollView.PopupView is TTrainmanView) then
+    exit;
+  tmView := m_Frame.m_ScrollView.PopupView as TTrainmanView;
+  if tmView.Trainman.strTrainmanNumber = '' then
+  begin
+    box('不能导入空人员的测酒记录');
+    exit;
+  end;
+  groupView := tmView.Parent as TOrderGroupView;
+  strTrainPlanGUID := groupView.OrderGroup.Group.strTrainPlanGUID;
+  if not LCWebAPI.LCTrainPlan.GetTrainmanPlanByGUID(strTrainPlanGUID,tmPlan,strError) then
+  begin
+     Box('机组值乘的计划不存在，不能导入测酒记录:' + strError);
+     exit;
+  end;
+
+  DrinkQuery.nWorkTypeID := DRINK_TEST_CHU_QIN ;
+  DrinkQuery.strTrainmanNumber := tmView.Trainman.strTrainmanNumber;
+  DrinkQuery.dtBeginTime := IncHour(tmPlan.TrainPlan.dtStartTime, -6); //出勤计划前6小时
+  DrinkQuery.dtEndTime := IncHour(tmPlan.TrainPlan.dtStartTime, 6); //出勤计划后3小时
+  if TFrmDrinkInfo.ShowForm(dfServer, DrinkQuery, DrinkInfo) <> mrOK then exit;
+
+  TestResult.dtTestTime := DrinkInfo.dtCreateTime;
+  TestResult.taTestAlcoholResult := TTestAlcoholResult(DrinkInfo.nDrinkResult);
+  TestResult.Picture := DrinkInfo.DrinkImage;
+  TestResult.nAlcoholicity := DrinkInfo.dwAlcoholicity;
+
+  trainmanPlan.Group := tmPlan.Group;
+  trainmanPlan.Group.Trainman1.strTrainmanGUID := '';
+  trainmanPlan.Group.Trainman2.strTrainmanGUID := '';
+  trainmanPlan.Group.Trainman3.strTrainmanGUID := '';
+  trainmanPlan.Group.Trainman4.strTrainmanGUID := '';
+  trainmanPlan.TrainPlan := tmPlan.TrainPlan;
+  trainmanPlan.dtBeginWorkTime := tmPlan.dtBeginWorkTime;
+
+  LCWebAPI.LCTrainmanMgr.GetTrainmanByNumber(DrinkInfo.strTrainmanNumber, Trainman);
+  Verify := TRsRegisterFlag(DrinkInfo.nVerifyID);
+  if not TBox(Format('您确认要导入“%s[%s]”的测酒记录吗？', [Trainman.strTrainmanName, Trainman.strTrainmanNumber])) then exit;
+
+  //人员信息
+  RDrink.bLocalAreaTrainman := true;
+  RDrink.strTrainmanGUID := Trainman.strTrainmanGUID ;
+  RDrink.strTrainmanName := Trainman.strTrainmanName ;
+  RDrink.strTrainmanNumber := Trainman.strTrainmanNumber;
+  //车次信息
+  RDrink.strTrainNo :=  trainmanPlan.TrainPlan.strTrainNo ;
+  RDrink.strTrainNumber :=  trainmanPlan.TrainPlan.strTrainNumber ;
+  RDrink.strTrainTypeName :=  trainmanPlan.TrainPlan.strTrainTypeName ;
+  //出勤点信息
+  RDrink.strPlaceID := m_Frame.GetCurrentPlaceID ;
+  RDrink.strPlaceName := '';
+  RDrink.strSiteIp := GlobalDM.Site.Number;
+  RDrink.strSiteGUID := GlobalDM.Site.ID;
+  RDrink.strSiteName := GlobalDM.Site.Name;
+
+  RDrink.strDutyGUID := GlobalDM.User.ID;
+  RDrink.strDutyNumber := GlobalDM.User.Number;
+  RDrink.strDutyName := GlobalDM.User.Name;
+
+  RDrink.strAreaGUID := Trainman.strAreaGUID;
+  
+
+  //车间
+  RDrink.strWorkShopGUID := Trainman.strWorkShopGUID ;
+  RDrink.strWorkShopName := Trainman.strWorkShopName ;
+
+  RDrink.strGUID := DrinkInfo.strGUID ;
+  RDrink.AssignFromTestAlcoholInfo(TestResult);
+  RDrink.nVerifyID :=  DrinkInfo.nVerifyID ;
+  RDrink.strPictureURL := DrinkInfo.strPictureURL;
+
+
+  LCWebAPI.LCBeginwork.ImportBeginWork(Trainman.strTrainmanGUID,trainmanPlan.TrainPlan.strTrainPlanGUID,
+  RDrink,Ord(Verify),'手工导入');
+
+  m_Frame.RefreshViews;
+end;
+
+procedure TTmMenuActions.ImportTQDrink(Sender: TObject);
+var  
+  DrinkQuery: RRsDrinkQuery;
+  DrinkInfo: RRsDrinkInfo;
+  Param: TRelDrinkParam;
+  tmView: TTrainmanView;
+  groupView : TOrderGroupView;
+  tmPlan : RRsTrainmanPlan;
+  strTrainPlanGUID,strError : string;
+begin
+ if not (m_Frame.m_ScrollView.PopupView is TTrainmanView) then
+    exit;
+  tmView := m_Frame.m_ScrollView.PopupView as TTrainmanView;
+  if tmView.Trainman.strTrainmanNumber = '' then
+  begin
+    box('不能导入空人员的测酒记录');
+    exit;
+  end;
+  groupView := tmView.Parent as TOrderGroupView;
+  strTrainPlanGUID := groupView.OrderGroup.Group.strTrainPlanGUID;
+  if not LCWebAPI.LCTrainPlan.GetTrainmanPlanByGUID(strTrainPlanGUID,tmPlan,strError) then
+  begin
+     Box('机组值乘的计划不存在，不能导入测酒记录:' + strError);
+     exit;
+  end;
+
+  DrinkQuery.nWorkTypeID := DRINK_TEST_TUI_QIN ;
+  DrinkQuery.strTrainmanNumber := tmView.Trainman.strTrainmanNumber;
+  DrinkQuery.dtBeginTime := tmPlan.TrainPlan.dtStartTime; //出勤计划时间
+  DrinkQuery.dtEndTime := IncDay(tmPlan.TrainPlan.dtStartTime, 10); //出勤计划后10天
+  if TFrmDrinkInfo.ShowForm(dfServer, DrinkQuery, DrinkInfo) <> mrOK then exit;
+
+
+  Param := TRelDrinkParam.Create;
+  try
+    Param.TmGUID := tmView.Trainman.strTrainmanGUID;
+    Param.TmNumber := tmView.Trainman.strTrainmanNumber;
+    Param.PlanGUID := tmPlan.TrainPlan.strTrainPlanGUID;
+    Param.DrinkGUID := DrinkInfo.strGUID;
+    Param.DutyGUID := GlobalDM.User.ID;
+    Param.SiteGUID := GlobalDM.Site.ID;
+    LCWebAPI.LCEndwork.RelDrink(Param);
+    m_Frame.RefreshViews;
+  finally
+    Param.Free;
+  end;
+
+
+end;
+
+
+procedure TTmMenuActions.RemoveTm(Sender: TObject);
+var
+  AddInput: TRsLCTrainmanAddInput;
+begin
+  with m_Frame.m_ScrollView do
+  begin
+    with PopupView.Parent as TOrderGroupView do
+    begin
+      AddInput := TRsLCTrainmanAddInput.Create;
+      try
+        m_Frame.DoFillParam(AddInput.TrainmanJiaolu,AddInput.DutyUser);
+        AddInput.TrainmanNumber := (PopupView as TTrainmanView).Trainman.strTrainmanNumber;
+        AddInput.TrainmanIndex := Items.IndexOf(PopupView) + 1;
+        AddInput.GroupGUID := orderGroup.Group.strGroupGUID;
+
+        if TNPCommonLogic.RemoveTm(AddInput,orderGroup.Group) then
+          RefreshGrpView(PopupView.Parent);
+      finally
+        AddInput.Free;
+      end;
+    end;
+  end;
+end;
+
+
+procedure TTmMenuActions.SetTM(Sender: TObject);
+var
+  AddInput: TRsLCTrainmanAddInput;
+begin
+
+  with m_Frame.m_ScrollView do
+  begin
+    with PopupView.Parent as TOrderGroupView do
+    begin
+      if TLocalValidator.IsBusy(PopupView.Parent as TOrderGroupView) then
+      begin
+        TMessageBox.Box(TLocalValidator.Reason);
+        Exit;
+      end;
+
+
+      AddInput := TRsLCTrainmanAddInput.Create;
+      try
+        m_Frame.DoFillParam(AddInput.TrainmanJiaolu,AddInput.DutyUser);
+
+        AddInput.GroupGUID := orderGroup.Group.strGroupGUID;
+
+        AddInput.TrainmanIndex := PopupView.Parent.Items.IndexOf(PopupView) + 1;
+        
+        if not TNPCommonLogic.AddTmToGrp(AddInput) then Exit;
+        
+      finally
+        AddInput.Free;
+      end;
+    end;
+    RefreshGrpView(m_Frame.m_ScrollView.PopupView.Parent);
+  end;
+end;
+
+procedure TTmMenuActions.ViewTM(Sender: TObject);
+var
+  AddInput: TRsLCTrainmanAddInput;
+  TMView : TTrainmanView;
+begin
+  with m_Frame.m_ScrollView do
+  begin
+    if PopupView is TTrainmanView then
+    begin
+      TMView := (PopupView as TTrainmanView);
+      if (TMView.Trainman.strTrainmanNumber) then
+      begin
+        t
+      end;
+    end;
+  end;
+end;
+
+end.

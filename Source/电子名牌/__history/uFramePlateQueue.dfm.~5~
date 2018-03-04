@@ -1,0 +1,124 @@
+object FramePlateQueue: TFramePlateQueue
+  Left = 0
+  Top = 0
+  Width = 320
+  Height = 306
+  Font.Charset = DEFAULT_CHARSET
+  Font.Color = clWindowText
+  Font.Height = -16
+  Font.Name = 'Tahoma'
+  Font.Style = []
+  ParentFont = False
+  TabOrder = 0
+  TabStop = True
+  object lstBox: TRzListBox
+    Left = 0
+    Top = 121
+    Width = 320
+    Height = 185
+    Align = alClient
+    Color = 15794175
+    DragMode = dmAutomatic
+    FrameVisible = True
+    ItemHeight = 48
+    PopupMenu = PopupMenu
+    Style = lbOwnerDrawFixed
+    TabOrder = 0
+    OnClick = lstBoxClick
+    OnDragDrop = lstBoxDragDrop
+    OnDragOver = lstBoxDragOver
+    OnDrawItem = lstBoxDrawItem
+    OnMouseDown = lstBoxMouseDown
+    OnStartDrag = lstBoxStartDrag
+  end
+  object RzPanel1: TRzPanel
+    Left = 0
+    Top = 0
+    Width = 320
+    Height = 121
+    Align = alTop
+    BorderOuter = fsFlat
+    BorderHighlight = clWhite
+    BorderShadow = 8847358
+    Color = 15794175
+    FlatColorAdjustment = 0
+    FrameController = RzFrameController1
+    TabOrder = 1
+    object Label1: TLabel
+      Left = 7
+      Top = 7
+      Width = 38
+      Height = 19
+      Caption = #20154#21592':'
+    end
+    object lblTm: TLabel
+      Left = 50
+      Top = 7
+      Width = 6
+      Height = 19
+      Caption = '-'
+    end
+    object Label3: TLabel
+      Left = 7
+      Top = 33
+      Width = 38
+      Height = 19
+      Caption = #32844#21153':'
+    end
+    object lblDuty: TLabel
+      Left = 50
+      Top = 33
+      Width = 6
+      Height = 19
+      Caption = '-'
+    end
+    object Label5: TLabel
+      Left = 7
+      Top = 56
+      Width = 38
+      Height = 19
+      Caption = #30005#35805':'
+    end
+    object lblTel: TLabel
+      Left = 50
+      Top = 56
+      Width = 6
+      Height = 19
+      Caption = '-'
+    end
+    object Label7: TLabel
+      Left = 7
+      Top = 82
+      Width = 70
+      Height = 19
+      Caption = #36864#21220#26102#38388':'
+    end
+    object lblEndWorkTime: TLabel
+      Left = 90
+      Top = 82
+      Width = 6
+      Height = 19
+      Caption = '-'
+    end
+  end
+  object RzFrameController1: TRzFrameController
+    Color = 15794175
+    FocusColor = 15794175
+    FrameVisible = True
+    Left = 192
+    Top = 192
+  end
+  object PopupMenu: TPopupMenu
+    OnPopup = PopupMenuPopup
+    Left = 88
+    Top = 200
+    object N2: TMenuItem
+      Caption = #31227#38500
+      OnClick = N2Click
+    end
+    object N1: TMenuItem
+      Caption = #28165#31354
+      OnClick = N1Click
+    end
+  end
+end

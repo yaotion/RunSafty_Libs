@@ -1,0 +1,20 @@
+library RsUILoginLib;
+
+uses
+  ComServ,
+  RsUILoginLib_TLB in 'RsUILoginLib_TLB.pas',
+  RsUILogin_Impl in 'RsUILogin_Impl.pas' {RsUILogin: CoClass},
+  uFrmLogin in '功能窗口\登录验证\uFrmLogin.pas' {frmLogin};
+
+exports
+  DllGetClassObject,
+  DllCanUnloadNow,
+  DllRegisterServer,
+  DllUnregisterServer;
+
+{$R *.TLB}
+
+{$R *.RES}
+
+begin
+end.

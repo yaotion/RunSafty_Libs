@@ -1,0 +1,8 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<BorlandProject>
+	<Transactions>
+    <Transaction>2016/03/10 08:41:16.346.bdsproj,C:\Users\Administrator\Documents\Borland Studio Projects\Project1.bdsproj=C:\Users\Administrator\Desktop\运安类库封装\指纹仪封装\RsFingerLib.bdsproj</Transaction>
+    <Transaction>2016/03/10 10:15:50.052.pas,C:\Users\Administrator\Desktop\运安类库封装\指纹仪封装\Unit1.pas=C:\Users\Administrator\Desktop\运安类库封装\指纹仪封装\uRsFingerLib.pas</Transaction>
+    <Transaction>2016/03/10 10:16:02.705.pas,C:\Users\Administrator\Desktop\运安类库封装\指纹仪封装\Unit1.pas=C:\Users\Administrator\Desktop\运安类库封装\指纹仪封装\uRsFingerImpl.pas</Transaction>
+  </Transactions>
+</BorlandProject>

@@ -1,0 +1,11 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<BorlandProject>
+	<Transactions>
+    <Transaction>2016-11-14 09:03:11.862.bdsproj,D:\用户目录\Documents\Borland Studio Projects\Project1.bdsproj=D:\工作\机务运用安全管理系统\02_开发\01_源代码\基线源码\接口翻译(重构实体)\基础封装\global\src\RsGlobal.bdsproj</Transaction>
+    <Transaction>2016-11-14 09:12:15.569.pas,D:\工作\机务运用安全管理系统\02_开发\01_源代码\基线源码\接口翻译(重构实体)\基础封装\global\src\Unit1.pas=D:\工作\机务运用安全管理系统\02_开发\01_源代码\基线源码\接口翻译(重构实体)\基础封装\global\src\uGlobalImp.pas</Transaction>
+    <Transaction>2016-11-14 09:15:31.942.pas,D:\工作\机务运用安全管理系统\02_开发\01_源代码\基线源码\接口翻译(重构实体)\基础封装\global\src\uGlobalImp.pas=</Transaction>
+    <Transaction>2016-11-14 09:17:41.867.pas,D:\工作\机务运用安全管理系统\02_开发\01_源代码\基线源码\接口翻译(重构实体)\基础封装\global\src\uGlobalImp.pas=</Transaction>
+    <Transaction>2016-11-14 09:17:45.231.pas,D:\工作\机务运用安全管理系统\02_开发\01_源代码\基线源码\接口翻译(重构实体)\基础封装\global\src\RsGlobal_TLB.pas=</Transaction>
+    <Transaction>2016-11-14 09:20:54.144.pas,D:\工作\机务运用安全管理系统\02_开发\01_源代码\基线源码\接口翻译(重构实体)\基础封装\global\src\Unit1.pas=D:\工作\机务运用安全管理系统\02_开发\01_源代码\基线源码\接口翻译(重构实体)\基础封装\global\src\uGlobalImp.pas</Transaction>
+  </Transactions>
+</BorlandProject>

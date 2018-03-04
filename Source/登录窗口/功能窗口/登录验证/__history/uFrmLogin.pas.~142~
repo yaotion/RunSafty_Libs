@@ -1,0 +1,326 @@
+﻿unit uFrmLogin;
+
+interface
+
+uses
+  Windows, Messages, SysUtils, Variants, Classes, Graphics, Controls, Forms,
+  Dialogs, StdCtrls, ExtCtrls, ActnList,RzPanel, jpeg, pngimage,
+  Buttons, PngSpeedButton, Mask, RzEdit, RzStatus,uTFSystem,
+  PngCustomButton, Menus, RzButton, uApparatusCommon, RzCommon, RzPrgres,
+  RzRadChk
+  {,uConnAccess,uClientAppInfo,uLCDutyPlace,uLCDutyUser,
+  uLCBaseDict,uTrainman,uDutyUser,uGlobalDM};
+type
+  TfrmLogin = class(TForm)
+    RzPanel1: TRzPanel;
+    actLstLogin: TActionList;
+    actCancel: TAction;
+    actEnter: TAction;
+    Image4: TImage;
+    RzPanel2: TRzPanel;
+    Image2: TImage;
+    Image3: TImage;
+    Label1: TLabel;
+    Label3: TLabel;
+    btnDBConfig: TPngCustomButton;
+    RzPanel3: TRzPanel;
+    Label2: TLabel;
+    lblDutyNumber: TLabel;
+    edtDutyNumber: TRzEdit;
+    edtDutyPWD: TRzEdit;
+    btnLogin: TPngCustomButton;
+    btnCancel: TPngCustomButton;
+    ProgressBar: TRzProgressBar;
+    checkKeepPassword: TRzCheckBox;
+    checkAutoLogin: TRzCheckBox;
+    RzPanel4: TRzPanel;
+    LblBrief: TLabel;
+    tmrAutoLogin: TTimer;
+    procedure btnLoginClick(Sender: TObject);
+    procedure FormCreate(Sender: TObject);
+    procedure btnCancelClick(Sender: TObject);
+    procedure actEnterExecute(Sender: TObject);
+    procedure btnDBConfigClick(Sender: TObject);
+    procedure actCancelExecute(Sender: TObject);
+    procedure Image3MouseDown(Sender: TObject; Button: TMouseButton;
+      Shift: TShiftState; X, Y: Integer);
+    procedure Image3MouseUp(Sender: TObject; Button: TMouseButton;
+      Shift: TShiftState; X, Y: Integer);
+    procedure Image3MouseMove(Sender: TObject; Shift: TShiftState; X,
+      Y: Integer);
+    procedure checkKeepPasswordClick(Sender: TObject);
+    procedure checkAutoLoginClick(Sender: TObject);
+    procedure tmrAutoLoginTimer(Sender: TObject);
+    procedure FormShow(Sender: TObject);
+  private
+    { Private declarations }
+
+    m_InOffLine: Boolean;
+    //拖动点
+    m_ptDragStart : TPoint;
+    //初始化窗体显示
+    procedure InitUI;
+    //禁用窗体控件
+    procedure DisableForm;
+    //启用窗体控件
+    procedure EnableForm;
+    //检测输入合法性
+    function CheckInput : boolean;
+    //执行登录
+    procedure ExecLogin ;
+    
+  public
+    m_strTokenString : string;
+  public
+    { Public declarations }
+    property InOffLine: Boolean read m_InOffLine;
+    class function Login(out TokenString : WideString) : boolean;
+  end;
+implementation
+uses
+  uFrmConfig,uDutyUser,uGlobal,uWebApiCollection{,uSite, ufrmTextInput, utfPopBox, uFrmLocalDrink};
+{$R *.dfm}
+
+
+procedure TfrmLogin.btnLoginClick(Sender: TObject);
+begin
+  ExecLogin;
+end;
+
+
+
+procedure TfrmLogin.checkAutoLoginClick(Sender: TObject);
+begin
+ if checkAutoLogin.Checked then
+ begin
+   checkKeepPassword.Checked := true;
+ end;
+end;
+
+function TfrmLogin.CheckInput: boolean;
+begin
+  result := false;
+  if Trim(edtDutyNumber.Text) = '' then
+  begin
+    Box('请输入值班员工号');
+    exit;
+  end;
+  result := true;
+end;
+
+procedure TfrmLogin.checkKeepPasswordClick(Sender: TObject);
+begin
+  if not checkKeepPassword.Checked then
+  begin
+    checkAutoLogin.Checked := false;
+  end;
+end;
+
+procedure TfrmLogin.DisableForm;
+begin
+  btnLogin.Enabled := false;
+  btnCancel.Enabled := false;
+  edtDutyNumber.Enabled := false;
+  edtDutyPWD.Enabled := false;
+end;
+
+procedure TfrmLogin.EnableForm;
+begin
+  btnLogin.Enabled := true;
+  btnCancel.Enabled := true;
+  edtDutyNumber.Enabled := true;
+  edtDutyPWD.Enabled := true;
+end;
+
+procedure TfrmLogin.ExecLogin;
+var
+  user : TRsDutyUser;
+  //登录模式，1联网，2断网
+  mode : integer;
+begin
+  if Trim(edtDutyNumber.Text) = '' then
+  begin
+    Box('请输入值班员工号');
+    edtDutyNumber.SetFocus;
+    exit;
+  end;
+  DisableForm;
+  user := TRsDutyUser.Create;
+  try
+    LblBrief.Visible := true;
+    {$region '验证值班员账户'}
+
+    LblBrief.Caption := '正在验证值班员账户信息...';
+    Application.ProcessMessages;
+    try
+      if not LCWebAPI.LCDutyUser.GetDutyUserByNumber(Trim(edtDutyNumber.Text),user) then
+      begin
+        Box(Format('验证登录信息错误，错误信息：%s',['不存在此值班员工号']));
+        exit;
+      end;
+      if user.strPassword <> Trim(edtDutyPWD.Text) then
+      begin
+        Box(Format('验证登录信息错误，错误信息：%s',['密码错误']));
+        exit;
+      end;
+      mode := 1;
+      
+      GlobalConfig.KeepPassword := checkKeepPassword.Checked;
+      if checkKeepPassword.Checked then
+      begin
+        GlobalConfig.Password := edtDutyPWD.Text;
+        GlobalConfig.UserNumber := edtDutyNumber.Text;
+      end;
+      GlobalConfig.Autologin := checkAutoLogin.Checked;
+      GlobalConfig.Save;
+
+    except on e : exception do
+      if not GlobalConfig.AllowOffline then
+      begin
+        Box('登录异常:' + e.Message + '系统退出');
+        exit;
+      end else begin
+        Box('登录异常:' + e.Message + '系统将以断网模式运行!');
+        mode := 2;   
+      end;      
+    end;
+    
+    LblBrief.Caption := '验证值班员账户信息成功...';
+    Application.ProcessMessages;
+    {$endregion '验证值班员账户'}
+    lblBrief.Caption := '登录成功';
+    m_strTokenString := Format('UserNumber=%s;UserName=%s;Password=%s;Mode=%d',[edtDutyNumber.Text,user.strDutyName,edtDutyPWD.Text,mode]);
+    GlobalConfig.Autologin := checkAutoLogin.Checked;
+    GlobalConfig.KeepPassword := checkKeepPassword.Checked;
+    if GlobalConfig.KeepPassword then
+    begin
+      Globalconfig.UserNumber := edtDutyNumber.Text;
+      GlobalConfig.Password := edtDutyPWD.Text;
+    end else begin
+      Globalconfig.UserNumber := '';
+      GlobalConfig.Password := '';
+    end;
+    GlobalConfig.Save;
+    ModalResult := mrOk;
+  finally
+    user.Free;
+    LblBrief.Visible := false;
+    EnableForm;
+    if not edtDutyNumber.Focused then
+      edtDutyNumber.SetFocus;
+  end;
+end;
+
+procedure TfrmLogin.FormCreate(Sender: TObject);
+begin
+  LblBrief.Visible := false;
+  RzPanel3.DoubleBuffered := true;
+  tmrAutoLogin.Enabled := false;
+  g_WebAPIUtils.Host := GlobalDM.WebAPI.Host;
+  InitUI;
+end;
+
+procedure TfrmLogin.FormShow(Sender: TObject);
+begin
+  GlobalConfig.Load;
+  checkAutoLogin.Checked := GlobalConfig.Autologin;
+  checkKeepPassword.Checked := GlobalConfig.KeepPassword;
+  if GlobalConfig.KeepPassword then
+  begin
+    edtDutyNumber.Text := GlobalConfig.UserNumber;
+    edtDutyPWD.Text := globalConfig.Password;
+  end;
+  if GlobalConfig.Autologin then
+  begin
+    tmrAutoLogin.Enabled := true;
+  end;
+end;
+
+procedure TfrmLogin.Image3MouseDown(Sender: TObject; Button: TMouseButton;
+  Shift: TShiftState; X, Y: Integer);
+begin
+  m_ptDragStart := ClientToScreen(Point(X,Y))
+end;
+
+procedure TfrmLogin.Image3MouseMove(Sender: TObject; Shift: TShiftState; X,
+  Y: Integer);
+var
+  pt : TPoint;
+begin
+  if (m_ptDragStart.X > 0) then
+  begin
+    pt := ClientToScreen(Point(X,Y));
+    Left := Left + pt.X - m_ptDragStart.X;
+    Top := Top + pt.Y - m_ptDragStart.Y;
+    m_ptDragStart := pt;
+  end;
+end;
+
+procedure TfrmLogin.Image3MouseUp(Sender: TObject; Button: TMouseButton;
+  Shift: TShiftState; X, Y: Integer);
+begin
+  m_ptDragStart := Point(-1,-1);
+end;
+
+procedure TfrmLogin.InitUI;
+begin
+  //lblVersion.Caption := '版本：' + RzVersionInfo1.FileVersion;
+end;
+
+class function TfrmLogin.Login(out TokenString : WideString) : boolean;
+var
+  frmLogin:TfrmLogin;
+begin
+  frmLogin := TfrmLogin.Create(nil);
+  try
+    Result := false;
+    if frmLogin.ShowModal = mrCancel then exit;
+    TokenString := frmLogin.m_strTokenString;
+    result := true;
+  finally
+    frmLogin.Free;
+  end;
+end;
+
+
+procedure TfrmLogin.tmrAutoLoginTimer(Sender: TObject);
+begin
+  TTimer(Sender).Enabled := false;
+  if GlobalConfig.KeepPassword then
+  begin
+    edtDutyNumber.Text := GlobalConfig.UserNumber;
+    edtDutyPWD.Text := GlobalConfig.Password;
+  end;
+  ExecLogin;
+end;
+
+procedure TfrmLogin.actCancelExecute(Sender: TObject);
+begin
+  btnCancel.Click;
+end;
+
+procedure TfrmLogin.actEnterExecute(Sender: TObject);
+begin
+  if edtDutyNumber.Focused then
+  begin
+    if not CheckInput then exit;
+    edtDutyPWD.SetFocus;
+    exit;
+  end;
+  if edtDutyPWD.Focused then
+  begin
+    btnLogin.Click;
+  end;
+end;
+
+procedure TfrmLogin.btnCancelClick(Sender: TObject);
+begin
+  ModalResult := mrCancel;
+end;
+
+procedure TfrmLogin.btnDBConfigClick(Sender: TObject);
+begin
+  TfrmConfig.EditConfig;
+end;
+
+end.

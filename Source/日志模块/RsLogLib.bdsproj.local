@@ -1,0 +1,7 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<BorlandProject>
+	<Transactions>
+    <Transaction>2016-05-19 10:26:52.430.bdsproj,C:\Users\Administrator\Documents\Borland Studio Projects\Project1.bdsproj=E:\姚新\畅想\代码\项目\机务运用安全管理系统\02_开发\01_源代码\基线源码\客户端通用动态库\日志模块\RsLogLib.bdsproj</Transaction>
+    <Transaction>2016-05-19 10:27:15.708.pas,E:\姚新\畅想\代码\项目\机务运用安全管理系统\02_开发\01_源代码\基线源码\客户端通用动态库\日志模块\Unit1.pas=E:\姚新\畅想\代码\项目\机务运用安全管理系统\02_开发\01_源代码\基线源码\客户端通用动态库\日志模块\RsLogLib_Impl.pas</Transaction>
+  </Transactions>
+</BorlandProject>

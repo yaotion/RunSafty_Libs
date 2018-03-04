@@ -1,0 +1,724 @@
+unit uFramePrepare;
+
+interface
+
+uses
+  Windows, Messages, SysUtils, Variants, Classes, Graphics, Controls, Forms,
+  Dialogs, uFrameNamePlate,uTrainman, ExtCtrls, RzPanel,uScrollView,Menus,
+  uViewGroup,uLCNameBoardEx,uTrainmanView,uFrmAddUser,uValidator,uDialogsLib,
+  uSaftyEnum,jpeg,printers,uViewDefine,uTrainmanJiaolu;
+
+
+type
+  TMenuActions = class;
+  TFramePrepare = class(TFrameNamePlate)
+    PopupMenu_View: TPopupMenu;
+    PrintDialog1: TPrintDialog;
+    procedure PopupMenu_ViewPopup(Sender: TObject);
+    procedure N1Click(Sender: TObject);
+  private
+    { Private declarations }
+    m_MenuActions: TMenuActions;
+    m_CtrlRest : TRsNPControlRestList;
+    m_bCanEdit : boolean;
+    procedure WMRefresh(var Message: TWMSize); message WM_User + 1;
+  protected
+    procedure OnDragViewOver(src,dest: TView;var Accept: Boolean);override;
+    procedure OnDropMode(src,dest: TView;X,Y: integer;var Mode: TDropMode);override;
+  public
+    { Public declarations }
+    constructor Create(AOwner: TComponent); override;
+    function Search(Tm: PTm): Boolean;override;
+    procedure RefreshViews();override;
+    function GetLocalMinCtrlMinutes() : integer;
+    procedure ExportPlates(const FileName: string);override;
+    property CanEdit : boolean  read m_bCanEdit;
+  end;
+
+  TMenuActions = class(TComponent)
+  public
+    constructor NewCreate(Frame: TFramePrepare);
+  protected
+    m_Frame: TFramePrepare;
+  private
+    procedure RemoveOrder(View : TTrainmanView);
+  public
+    procedure CreateMenus(View: TView;PopMenu: TPopupMenu);
+    procedure AskLeave(Sender: TObject);
+    procedure Remove(Sender: TObject);
+    procedure ViewTM(Sender: TObject);
+    procedure PrintTM(Sender: TObject);
+    procedure InsertNew(Sender: TObject);
+    procedure AddNew(Sender: TObject);
+    procedure SetUpdate(Sender: TObject);
+    procedure UpdateOrder(Src,Dest: TTrainmanView);
+    procedure SetNull(Sender : TObject);
+
+  end;
+
+implementation
+
+uses uGlobal,
+  uWebApiCollection,
+  uTrainmanOrderView,
+  uNamePlatesExporter,
+  uFrmTrainmanDetail;
+
+{$R *.dfm}
+
+{ TFramePrepare }
+
+constructor TFramePrepare.Create(AOwner: TComponent);
+begin
+  inherited;
+  m_MenuActions := TMenuActions.NewCreate(Self);
+  m_ScrollView.DragEnable := true;
+  m_ScrollView.ViewPopMenue := PopupMenu_View;
+  m_ScrollView.Color := clWhite;
+  SetLength(m_CtrlRest,0);
+end;
+
+
+procedure TFramePrepare.ExportPlates(const FileName: string);
+var
+  NpTmList: TNpTmList;
+  I: Integer;
+  NpTm: TNpTm;
+begin
+  NpTmList := TNpTmList.Create;
+  try
+    for I := 0 to m_ScrollView.Views.Count - 1 do
+    begin
+      NpTm := TNpTm.Create;
+      NpTm.Name :=
+      (m_ScrollView.Views[i] as TTrainmanOrderView).TmView.Trainman.strTrainmanName;
+
+      NpTm.Number :=
+      (m_ScrollView.Views[i] as TTrainmanOrderView).TmView.Trainman.strTrainmanNumber;
+
+      NpTmList.Add(NpTm);
+    end;
+    TNamePlatesExport.ExportPlates(FileName,TmJl.Name,NpTmList);
+  finally
+    NpTmList.Free;
+  end;
+end;
+
+function TFramePrepare.GetLocalMinCtrlMinutes: integer;
+var
+  i: Integer;
+begin
+  result := 0;
+  for i := 0 to length(m_CtrlRest) - 1 do
+  begin
+    if (m_CtrlRest[i].LocalPlace = 1) and (m_CtrlRest[i].ControlLocalRest = 1) then
+    begin
+      result := m_CtrlRest[i].MinLocalRestMinutes;
+      exit;
+    end;
+  end;
+end;
+
+procedure TFramePrepare.N1Click(Sender: TObject);
+var
+  tmOrder : RRsPrepareTMOrder;
+  selectedView : TView;
+  nOrder : integer;
+begin
+  selectedView := ScrollView.PopupView;
+
+  tmOrder.TrainmanJiaoluGUID := TmJl.ID;
+  tmOrder.TrainmanJiaoluName := TmJl.Name;
+  if (selectedView is TViewGroup) then
+  begin
+    nOrder := 1;
+    tmOrder.PostID := (selectedView as TViewGroup).Tag;
+  end
+  else begin
+    nOrder :=  (selectedView as TTrainmanView).Order;
+    tmOrder.PostID := (selectedView.Parent as TViewGroup).Tag;
+  end;
+  tmOrder.TrainmanNumber := '';
+  tmOrder.TrainmanOrder := nOrder;
+  LCWebAPI.LCNameBoardEx.Trainman.AddPerpareTrainmanOrder(tmOrder);
+end;
+
+procedure TFramePrepare.OnDragViewOver(src, dest: TView; var Accept: Boolean);
+begin
+  accept := false;
+  if not m_bCanEdit then
+    exit;
+  if (src is TTrainmanView)  and (dest is TTrainmanView) then
+  begin
+    if (src as TTrainmanView).Trainman.strTrainmanGUID = (dest as TTrainmanView).Trainman.strTrainmanGUID then
+      exit;
+    if dest.Parent.Tag > 0 then
+      if (src as TTrainmanView).Tag = (Dest as TTrainmanView).Tag then
+      begin
+        accept := true;
+        exit;
+      end; 
+      if (src as TTrainmanView).Trainman.nPostID <> (dest as TTrainmanView).Trainman.nPostID then
+      begin
+        if ((dest as TTrainmanView).Trainman.nPostID = ptSubTrainman) and ((dest as TTrainmanView).Trainman.strTrainmanGUID= '') then
+        begin
+          accept := true;
+        end;
+      end else begin
+        accept := true;
+      end;
+  end;
+  
+end;
+
+procedure TFramePrepare.OnDropMode(src, dest: TView; X, Y: integer;
+  var Mode: TDropMode);
+begin
+  Mode := dmCancel;
+  if not m_bCanEdit then
+    exit;
+  if src is TTrainmanView then
+  begin
+    if dest is TTrainmanView then
+    begin
+      if (dest.Parent.Tag > 0) then
+      begin
+        Mode := dmExchange;
+        m_MenuActions.UpdateOrder(src as TTrainmanView,dest as TTrainmanView);
+      end;
+    end;
+  end else
+    Mode := dmCancel;
+end;
+
+procedure TFramePrepare.PopupMenu_ViewPopup(Sender: TObject);
+begin
+  m_MenuActions.CreateMenus(m_ScrollView.PopupView,PopupMenu_View)
+end;
+
+procedure TFramePrepare.RefreshViews;
+var
+  TmArray: TRsTrainmanArray;
+  TmOrderArray : TRsPrepareTMOrderArray;
+  View: TViewGroup;
+  TmView: TTrainmanView;
+  i,k: integer;
+  tm : RRsTrainman;
+  bFind : boolean;
+  minCtrlRestMinute : integer;
+function GetViewGrp(PostID: integer): TViewGroup;
+  var
+    i: integer;
+    PostName : string;
+  begin
+    PostName := '未知';
+    if PostID = 1 then
+      PostName := '司机';
+    if PostID = 2 then
+      PostName := '副司机';
+    if PostID = -1 then
+      PostName := '已退司机';
+    if PostID = -2 then
+      PostName := '已退副司机';
+    Result := nil;
+    for I := 0 to m_ScrollView.Views.Count - 1 do
+    begin
+      if (m_ScrollView.Views[i] as TViewGroup).Tag = PostID then
+      begin
+        Result := m_ScrollView.Views[i] as TViewGroup;
+        Break;
+      end;
+    end;
+
+    if Result = nil then
+    begin
+      Result := TViewGroup.Create;
+      //Result.Color := $0057544F;
+      Result.Color := CL_NP_BK_CONTENT;
+      Result.BorderColor := $00CECEC6;
+      Result.Title.Caption := PostName;
+      result.Tag := PostID;
+      Result.Title.Font.Size := 12;
+      Result.Title.Font.Style := [fsBold];
+      //Result.Title.Color := $0087827A;
+      Result.Title.Color := CL_NP_BK_CONTENT; 
+      Result.Margin.Top := 0;
+      Result.Margin.Bottom := 1;
+
+
+      m_ScrollView.Views.AddView(Result);
+    end;
+  end;
+
+begin
+  m_bCanEdit := LCWebAPI.LCBoardTrainman.CanEditPlate(GlobalDM.User.Number);
+  LCWebAPI.LCNameBoardEx.Trainman.GetControlRests(m_TmJl.ID,'',m_CtrlRest);
+  minCtrlRestMinute := GetLocalMinCtrlMinutes;
+  LCWebAPI.LCNameBoardEx.Trainman.GetPrepare(GlobalDM.WorkShop.ID,m_TmJl.ID,TmArray);
+  LCWebAPI.LCNameBoardEx.Trainman.GetPrepareOrder(GlobalDM.WorkShop.ID,m_TmJl.ID,TmOrderArray);
+
+  m_ScrollView.Views.BeginUpdate;
+  try
+    m_ScrollView.Views.Clear;
+    GetViewGrp(Ord(ptTrainman));
+
+    GetViewGrp(Ord(ptSubTrainman));
+
+    for i := 0 to length(TmOrderArray) - 1 do
+    begin
+      if (tmOrderArray[i].TrainmanNumber = '') then
+      begin
+        tm.strTrainmanNumber := TmOrderArray[i].TrainmanNumber;
+        tm.nPostID := TRsPost(TmOrderArray[i].PostID);
+        tm.strTrainmanGUID := '';
+        tm.strTrainmanName := '';
+        tm.bIsKey := 0;
+        tm.strTelNumber := TmOrderArray[i].strTelNumber;
+        tm.dtLastEndworkTime := TmOrderArray[i].dtLastEndWorkTime;
+        tm.nTrainmanState := TRsTrainmanState(TmOrderArray[i].nTrainmanState);
+        View := GetViewGrp(TmOrderArray[i].PostID);
+        TmView := TTrainmanView.Create;
+        TmView.Order := TmOrderArray[i].TrainmanOrder;
+        TmView.ShowOrder := true;
+        TmView.Trainman := tm;
+       
+        View.Items.AddView(TmView)
+      end else begin
+        tm.strTrainmanNumber := TmOrderArray[i].TrainmanNumber;
+        tm.nPostID := TRsPost(TmOrderArray[i].nPostID);
+        tm.strTrainmanGUID := TmOrderArray[i].TrainmanNumber;
+        tm.strTrainmanName := TmOrderArray[i].TrainmanName;
+        tm.strTelNumber := TmOrderArray[i].strTelNumber;
+        tm.dtLastEndworkTime := TmOrderArray[i].dtLastEndWorkTime;
+        tm.nTrainmanState := TRsTrainmanState(TmOrderArray[i].nTrainmanState);
+        tm.bIsKey := 0;
+        
+        View := GetViewGrp(TmOrderArray[i].PostID);
+        TmView := TTrainmanView.Create;
+        TMView.MinRestMinutes := minCtrlRestMinute;
+        TmView.Order := TmOrderArray[i].TrainmanOrder;
+        TmView.ShowOrder := true;
+        TmView.Trainman := tm;
+        View.Items.AddView(TmView);
+      end;
+    end;
+    for i := 0 to length(TmArray) - 1 do
+    begin
+      bfind := false;
+      
+      for k := 0 to length(TmOrderArray) - 1 do
+      begin
+        if (tmArray[i].strTrainmanNumber = tmorderarray[k].TrainmanNumber) then
+        begin
+          bfind := true;
+          break;
+        end;
+      end;
+
+      if (bfind) then
+        continue;
+      View := GetViewGrp(Ord(tmArray[i].nPostID) * -1);
+      TmView := TTrainmanView.Create;
+      TmView.Trainman := TmArray[i];
+      TMView.MinRestMinutes := minCtrlRestMinute;
+      View.Items.AddView(TmView)
+    end;
+  finally
+    m_ScrollView.Views.EndUpdate;
+  end;
+end;
+
+function TFramePrepare.Search(Tm: PTm): Boolean;
+var
+  i,j: Integer;
+  tmView : TTrainmanView;
+begin
+  Result := False;
+  for i := 0 to m_ScrollView.Views.Count - 1 do
+  begin
+    if m_ScrollView.Views[i] is TViewGroup then
+    begin
+
+      for j := 0 to m_ScrollView.Views[i].Items.Count - 1 do
+      begin
+        tmView :=  m_ScrollView.Views[i].Items[j] as  TTrainmanView;
+        if tmView.Trainman.strTrainmanNumber = Tm.strTrainmanNumber then
+        begin
+          m_ScrollView.MakeVisible(tmView,true);
+          Result := True;
+          Exit;
+        end;
+      end;
+    end else begin
+      if TTrainmanView(m_ScrollView.Views[i].Items[0]).Trainman.strTrainmanNumber = Tm.strTrainmanNumber then
+      begin
+        m_ScrollView.MakeVisible(m_ScrollView.Views[i].Items[0],true);
+        Result := True;
+        Exit;
+      end;
+    end;
+  end;
+end;
+
+
+procedure TFramePrepare.WMRefresh(var Message: TWMSize);
+begin
+  RefreshViews;
+end;
+
+{ TMenuActions }
+
+procedure TMenuActions.AddNew(Sender: TObject);
+var
+  tmOrder : RRsPrepareTMOrder;
+  selectedView : TView;
+  nOrder : integer;
+  strLogText : string;
+begin
+  selectedView := m_Frame.ScrollView.PopupView;
+
+  tmOrder.TrainmanJiaoluGUID := m_Frame.TmJl.ID;
+  tmOrder.TrainmanJiaoluName := m_Frame.TmJl.Name;
+
+  if (selectedView is TViewGroup) then
+  begin
+    nOrder := (selectedView as TViewGroup).Items.Count + 1;
+    tmOrder.PostID := (selectedView as TViewGroup).Tag;
+  end else
+    exit;
+  tmOrder.TrainmanNumber := '';
+  tmOrder.TrainmanName := '';
+  tmOrder.TrainmanOrder := nOrder;
+  LCWebAPI.LCNameBoardEx.Trainman.AddPerpareTrainmanOrder(tmOrder);
+  //变动日志
+  strLogText := Format('%s在第%d位插入空位',[GlobalDM.User.Name,tmOrder.TrainmanOrder]);
+  LCWebAPI.LCNameBoardEx.Trainman.AddPrepareChangeLog(now,GlobalDM.User.Number,
+    GlobalDM.User.Name,tmOrder.TrainmanJiaoluGUID,tmOrder.TrainmanJiaoluName,1,strLogText);    
+  m_Frame.RefreshViews;
+end;
+
+procedure TMenuActions.AskLeave(Sender: TObject);
+begin
+  with m_Frame.m_ScrollView.PopupView as TTrainmanView do
+  begin
+    if LeaveLib.Askfor(Trainman.strTrainmanNumber) then
+    begin
+      m_Frame.RefreshViews;
+    end;
+  end;
+
+end;
+procedure TMenuActions.CreateMenus(View: TView; PopMenu: TPopupMenu);
+begin
+  PopMenu.Items.Clear;
+  if View is TTrainmanView then
+  begin
+    if View.Parent.Tag >= 0 then
+    begin
+      AddMenuItem('人员信息',ViewTM,PopMenu);
+      AddMenuItem('-',nil,PopMenu);
+      if m_Frame.CanEdit then
+      begin
+        AddMenuItem('插入',InsertNew,PopMenu);
+        AddMenuItem('设置',SetUpdate,PopMenu);
+        AddMenuItem('-',nil,PopMenu);
+        AddMenuItem('移出名牌',SetNull,PopMenu);
+      end;
+
+      AddMenuItem('-',nil,PopMenu);
+      AddMenuItem('打印',PrintTM,PopMenu);
+
+    end;
+    AddMenuItem('-',nil,PopMenu);
+    AddMenuItem('请假',AskLeave,PopMenu);
+
+
+  end else begin
+    if View is TViewGroup then
+    begin
+      if m_Frame.CanEdit then
+      begin
+        if VIew.Tag <=0 then exit;
+
+        AddMenuItem('添加',AddNew,PopMenu);
+      end;
+    end;
+  end;
+end;
+
+constructor TMenuActions.NewCreate(Frame: TFramePrepare);
+begin
+  inherited Create(Frame);
+  m_Frame := Frame;
+end;
+procedure TMenuActions.InsertNew(Sender: TObject);
+var
+  tmOrder : RRsPrepareTMOrder;
+  selectedView : TView;
+  nOrder : integer;
+  strLogText : string;
+begin
+  selectedView := m_Frame.ScrollView.PopupView;
+  tmOrder.TrainmanJiaoluGUID := m_Frame.TmJl.ID;
+  tmOrder.TrainmanJiaoluName := m_Frame.TmJl.Name;
+  if (selectedView is TViewGroup) then
+  begin
+    nOrder := 1;
+    tmOrder.PostID := (selectedView as TViewGroup).Tag;
+  end
+  else begin
+    nOrder :=  (selectedView as TTrainmanView).Order;
+    tmOrder.PostID := (selectedView.Parent as TViewGroup).Tag;
+  end;
+  tmOrder.TrainmanNumber := '';
+  tmOrder.TrainmanName := '';
+  tmOrder.TrainmanOrder := nOrder;
+  LCWebAPI.LCNameBoardEx.Trainman.AddPerpareTrainmanOrder(tmOrder);
+  //变动日志
+  strLogText := Format('%s在第%d位插入空位',[GlobalDM.User.Name,tmOrder.TrainmanOrder]);
+  LCWebAPI.LCNameBoardEx.Trainman.AddPrepareChangeLog(now,GlobalDM.User.Number,
+    GlobalDM.User.Name,tmOrder.TrainmanJiaoluGUID,tmOrder.TrainmanJiaoluName,
+    1,strLogText);
+  m_Frame.RefreshViews;
+end;
+procedure TMenuActions.Remove(Sender: TObject);
+var
+  tmView : TTrainmanView;
+begin
+  tmView := m_Frame.ScrollView.PopupView as TTrainmanView;
+  RemoveOrder(tmView);
+  m_Frame.RefreshViews;
+end;
+
+procedure TMenuActions.RemoveOrder(View: TTrainmanView);
+var
+  tmOrder : RRsPrepareTMOrder;
+  nOrder : integer;
+  strLogText : string;
+begin
+  nOrder :=  view.Order;
+  tmOrder.TrainmanJiaoluGUID := m_Frame.TmJl.ID;
+  tmOrder.TrainmanJiaoluName := m_Frame.TmJl.Name;
+  tmOrder.PostID := (View.Parent as TViewGroup).Tag;
+  tmOrder.TrainmanNumber := (View as TTrainmanView).Trainman.strTrainmanNumber;
+  tmOrder.TrainmanName := (View as TTrainmanView).Trainman.strTrainmanName;
+  tmOrder.TrainmanOrder := nOrder;
+  LCWebAPI.LCNameBoardEx.Trainman.DeletePerpareTrainmanOrder(tmOrder);
+  //变动日志
+  strLogText := Format('%s删除了处于第%d位的[%s]%s',[GlobalDM.User.Name,
+    tmOrder.TrainmanOrder,tmOrder.TrainmanNumber,tmOrder.TrainmanName]);
+
+  LCWebAPI.LCNameBoardEx.Trainman.AddPrepareChangeLog(now,GlobalDM.User.Number,
+    GlobalDM.User.Name,tmOrder.TrainmanJiaoluGUID,tmOrder.TrainmanJiaoluName,
+    3,strLogText);
+end;
+
+procedure TMenuActions.SetNull(Sender: TObject);
+var
+  tmView : TTrainmanView;
+begin
+  tmView :=  m_Frame.ScrollView.PopupView as TTrainmanView;
+  if not (m_Frame.ScrollView.PopupView is TTrainmanView) then
+  begin
+    TMessageBox.Box('目标位置无效');
+    exit;
+  end;
+
+  LCWebAPI.LCNameBoardEx.Trainman.SetStateToNull(tmView.Trainman.strTrainmanNumber);
+  RemoveOrder(tmView);
+  m_Frame.RefreshViews;
+end;
+
+procedure TMenuActions.SetUpdate(Sender: TObject);
+var
+  Tm: RRsTrainman;
+  sourceOrder,destOrder : RRsPrepareTMOrder;
+  selectedView : TTrainmanView;
+  strLogText : string;
+  g : RRsGroup;
+begin
+  //加日志
+  if not (m_Frame.ScrollView.PopupView is TTrainmanView) then
+  begin
+    TMessageBox.Box('目标位置无效');
+    exit;
+  end;
+  selectedView :=  m_Frame.ScrollView.PopupView as TTrainmanView;
+  
+  if not TFrmAddUser.InputTrainman('',Tm) then exit;
+
+  if TLocalValidator.IsBusy(Tm) then
+  begin
+    TMessageBox.Box(TLocalValidator.Reason);
+    Exit;
+  end;
+
+  if LCWebAPI.LCNameBoardEx.Group.GetGroup(tm.strTrainmanNumber,0,g) then
+  begin
+    if g.strGroupGUID <> '' then
+    begin
+     TMessageBox.Box('不能把机组的人安排到预备队列里');
+      exit;
+    end;
+  end;
+  sourceOrder.TrainmanJiaoluGUID := m_Frame.TmJl.ID;
+  sourceOrder.TrainmanJiaoluName := m_Frame.TmJl.Name;
+  sourceOrder.PostID := Ord(Tm.nPostID);
+  sourceOrder.TrainmanNumber := Tm.strTrainmanNumber;
+  sourceOrder.TrainmanName := Tm.strTrainmanName;
+  sourceOrder.TrainmanOrder := 0;
+
+
+  destOrder.TrainmanJiaoluGUID := m_Frame.TmJl.ID;
+  destOrder.TrainmanJiaoluName := m_Frame.TmJl.Name;
+  destOrder.PostID := (selectedView.Parent as TViewGroup).Tag;
+  destOrder.TrainmanNumber := selectedView.Trainman.strTrainmanNumber;
+  destOrder.TrainmanName := selectedView.Trainman.strTrainmanName;
+  destOrder.TrainmanOrder := selectedView.Order;
+
+  if sourceOrder.PostID <> destOrder.PostID then
+  begin
+    if destOrder.PostID = ord(ptTrainman) then
+    begin
+    TMessageBox.Box('职位安排错误');
+    exit;
+    end;
+  end;
+
+  LCWebAPI.LCNameBoardEx.Trainman.UpdatePerpareTrainmanOrder(sourceOrder,destOrder);
+  //变动日志 //%s将第%d位[%s]%s和第%d位[%s][%s]交换'
+  strLogText := Format('%s为第%d位[%s]%s设置了人员[%s][%s]',
+    [GlobalDM.User.Name,destOrder.TrainmanOrder,destOrder.TrainmanNumber,destOrder.TrainmanName,
+      sourceOrder.TrainmanNumber,sourceOrder.TrainmanName]);
+  LCWebAPI.LCNameBoardEx.Trainman.AddPrepareChangeLog(now,GlobalDM.User.Number,
+    GlobalDM.User.Name,m_Frame.TmJl.ID,m_Frame.TmJl.Name,2,strLogText);
+  m_Frame.RefreshViews;
+end;
+
+procedure TMenuActions.UpdateOrder(Src, Dest: TTrainmanView);
+var
+  sourceOrder,destOrder : RRsPrepareTMOrder;
+  nOrder : integer;
+  strLogText : string;
+begin
+
+  nOrder := dest.Order;
+  destOrder.TrainmanJiaoluGUID := m_Frame.TmJl.ID;
+  destOrder.TrainmanJiaoluName := m_Frame.TmJl.Name;
+  destOrder.PostID := (Dest.Parent as TViewGroup).Tag;
+  destOrder.TrainmanNumber := (Dest as TTrainmanView).Trainman.strTrainmanNumber;
+  destOrder.TrainmanName := (Dest as TTrainmanView).Trainman.strTrainmanName;
+  destOrder.TrainmanOrder := nOrder;
+
+  nOrder := src.Order;
+  if (src.Parent.Tag <= 0) then
+    norder := 0;
+  
+  sourceOrder.TrainmanJiaoluGUID := m_Frame.TmJl.ID;
+  sourceOrder.TrainmanJiaoluName := m_Frame.TmJl.Name;
+  sourceOrder.PostID := (Src.Parent as TViewGroup).Tag;
+  sourceOrder.TrainmanNumber := (src as TTrainmanView).Trainman.strTrainmanNumber;
+  sourceOrder.TrainmanName := (src as TTrainmanView).Trainman.strTrainmanName;
+  sourceOrder.TrainmanOrder := nOrder;
+
+  LCWebAPI.LCNameBoardEx.Trainman.UpdatePerpareTrainmanOrder(sourceOrder,destOrder);
+  
+  //变动日志
+  strLogText := Format('%s将第%d位[%s]%s和第%d位[%s][%s]交换',
+    [GlobalDM.User.Name,sourceOrder.TrainmanOrder,sourceOrder.TrainmanNumber,sourceOrder.TrainmanJiaoluName,
+      destOrder.TrainmanOrder,destOrder.TrainmanNumber,destOrder.TrainmanName]);
+  LCWebAPI.LCNameBoardEx.Trainman.AddPrepareChangeLog(now,GlobalDM.User.Number,
+    GlobalDM.User.Name,m_Frame.TmJl.ID,m_Frame.TmJl.Name,2,strLogText);
+
+  PostMessage(m_Frame.Handle,WM_USER + 1,0,0);
+end;
+
+procedure TMenuActions.ViewTM(Sender: TObject);
+var
+  TMView : TTrainmanView;
+begin
+  with m_Frame.m_ScrollView do
+  begin
+    if PopupView is TTrainmanView then
+    begin
+      TMView := (PopupView as TTrainmanView);
+      if (TMView.Trainman.strTrainmanNumber <> '') then
+      begin
+        TfrmTrainmanDetail.ViewTrainmanDetail(TMVIEW.Trainman.strTrainmanGUID)
+      end;
+    end;
+  end;
+end;
+
+procedure TMenuActions.PrintTM(Sender: TObject);
+var
+   pxprint,pyprint:Integer;  
+   r2,r,rRoom:Trect;
+   jpg: TBitmap;
+   w,h : integer;
+begin  
+  inherited;
+  try  
+    //向打印机输出图片
+
+    printer.Title:= '电子名牌';
+    jpg := TBitmap.Create;
+    try
+      jpg.Width := m_Frame.ScrollView.Width;
+      jpg.Height := m_Frame.ScrollView.Height;
+      r := Rect(0,0,jpg.Width,jpg.Height);
+      jpg.Canvas.CopyRect(r,m_Frame.ScrollView.Canvas,r);
+      try
+        if m_Frame.PrintDialog1.Execute then
+        begin
+
+          //获得打印机的分辨率,就是每英寸多少个像素
+          pxprint := getdevicecaps(printer.Handle,logpixelsx);
+          pyprint := getdevicecaps(printer.Handle,logpixelsy);
+          //设置图片的打印区域，现在用的是A4：21cm*29.5cm
+          with  r2  do
+          begin
+            left  := 0;
+            top   := 0;
+            right := trunc(21*0.3937008*pxprint);
+            bottom:= trunc(29.5*0.3937008*pyprint);
+          end;
+        if Printer.Orientation = poLandscape then
+        begin
+          with  r2  do
+          begin
+            left  := 0;
+            top   := 0;
+            right := trunc(29.5*0.3937008*pyprint);
+            bottom:= trunc(21*0.3937008*pxprint);
+          end;
+        end;
+        InflateRect(r2,-200,-150);
+
+
+        h := Round(((r2.Bottom - r2.Top)  mod r.Bottom) /2) ;
+        w := Round(((r2.Right - r2.Left)  mod r.Right) /2);
+        rRoom.Top := r2.Top +  h;
+        rRoom.Bottom := r2.Bottom - r2.Top - h ;
+        rRoom.Left := r2.Left + w;
+        rRoom.Right := r2.Right - r2.Left - w;
+
+        printer.begindoc;
+        Printer.Canvas.StretchDraw(rRoom,jpg);
+        application.ProcessMessages;
+        printer.enddoc;
+        end;
+      except
+        printer.Abort;
+        raise;
+      end;
+    finally
+      jpg.Free;
+    end;
+  except on e :exception do
+    showmessage( '打印失败 : ' + e.Message );  
+  end;  
+
+end;
+
+end.

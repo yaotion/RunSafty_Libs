@@ -1,0 +1,20 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<BorlandProject>
+  <PersonalityInfo>
+    <Option>
+      <Option Name="Personality">Default.Personality</Option>
+      <Option Name="ProjectType"></Option>
+      <Option Name="Version">1.0</Option>
+      <Option Name="GUID">{D79CC17B-D3A1-4BF1-B5F9-F943083F12A1}</Option>
+    </Option>
+  </PersonalityInfo>
+  <Default.Personality>
+    
+    <Projects>
+      <Projects Name="RsLibDemo.exe">..\RsLibDemo.bdsproj</Projects>
+      <Projects Name="RsCameraLib.dll">..\..\摄像头Com模块\RsCameraLib.bdsproj</Projects>
+      <Projects Name="Targets">RsLibDemo.exe RsCameraLib.dll</Projects>
+    </Projects>
+    <Dependencies/>
+  </Default.Personality>
+</BorlandProject>

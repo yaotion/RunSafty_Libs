@@ -1,0 +1,20 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<BorlandProject>
+	<PersonalityInfo>
+		<Option>
+			<Option Name="Personality">Default.Personality</Option>
+			<Option Name="ProjectType"></Option>
+			<Option Name="Version">1.0</Option>
+			<Option Name="GUID">{E155FFA5-154B-4AF6-B240-312BAF6D2DB6}</Option>
+		</Option>
+	</PersonalityInfo>
+	<Default.Personality>  
+    
+    <Projects>
+      <Projects Name="RsNameplateLib.dll">RsNameplateLib.bdsproj</Projects>
+      <Projects Name="RunSaftyLogic.bpl">..\..\..\接口翻译\逻辑层BPL\Source\RunSaftyLogic.bdsproj</Projects>
+      <Projects Name="Targets">RsNameplateLib.dll RunSaftyLogic.bpl</Projects>
+    </Projects>
+    <Dependencies/>
+  </Default.Personality>
+</BorlandProject>

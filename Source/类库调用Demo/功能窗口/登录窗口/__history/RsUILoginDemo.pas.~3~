@@ -1,0 +1,34 @@
+unit RsUILoginDemo;
+
+interface
+
+uses
+  Windows, Messages, SysUtils, Variants, Classes, Graphics, Controls, Forms,
+  Dialogs;
+
+type
+  TfrmUILoginDemo = class(TForm)
+  private
+    { Private declarations }
+  public
+    { Public declarations }
+    class procedure ShowDemo;
+  end;
+
+
+
+implementation
+var
+  frmUILoginDemo: TfrmUILoginDemo;
+{$R *.dfm}
+
+{ TfrmUILoginDemo }
+
+class procedure TfrmUILoginDemo.ShowDemo;
+begin
+  frmUILoginDemo:= TfrmUILoginDemo.Create(nil);
+  frmUILoginDemo.ShowModal;
+  frmUILoginDemo.free;
+end;
+
+end.
